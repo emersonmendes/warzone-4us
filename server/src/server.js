@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, `${CLIENT_PATH}/dist`)));
 app.use(bodyParser.json({limit: '20mb'}));
 app.use(bodyParser.urlencoded({ extended: true, limit: '20mb' }));
 
-const port = 9191;
+const port = process.env.PORT || 8080;
 
 logger.info('App listening on port ' + port);
 
