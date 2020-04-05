@@ -1,6 +1,4 @@
 
-export NPM_CONFIG_PRODUCTION=false
-
 # build server
 
 npm --prefix ./server/ install
