@@ -15,7 +15,8 @@ async function getStats(data, cbSuccess, cbError){
 
         for( const d of data){
 
-            const url = `/stats/cod/v1/title/mw/platform/${d.platform}/gamer/${d.player}/profile/type/mp`;
+            const url = `/stats/cod/v1/title/mw/platform/${d.platform}/gamer/${d.player}/profile/type/wz`;
+
             const response = await axios.get(url);
 
             if(response.data.status === 'success' && response.data.data.lifetime.mode.br){
@@ -27,7 +28,8 @@ async function getStats(data, cbSuccess, cbError){
                     level: data.level,
                     kills: properties.kills,
                     deaths: properties.deaths,
-                    balance: properties.kills - properties.deaths
+                    balance: properties.kills - properties.deaths,
+                    gamesPlayed: properties.gamesPlayed
                 });
             } else {
                 result.push({

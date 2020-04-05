@@ -46,6 +46,7 @@
                         <div class="col mr-6" v-if="!item.error">
                             <div class="h4 font-weight-bold text-primary mb-1">{{item.username}}</div>
                             <div class="h6 mb-0 font-weight-bold">Nível: {{item.level}}</div>
+                            <div class="h6 mb-0 font-weight-bold">Partidas: {{item.gamesPlayed}}</div>
                             <div class="h6 mb-0 font-weight-bold">Vitórias: {{item.wins}}</div>
                             <div class="h6 mb-0 font-weight-bold">Execuções: {{item.kills}}</div>
                             <div class="h6 mb-0 font-weight-bold">Mortes: {{item.deaths}}</div>
