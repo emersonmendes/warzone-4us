@@ -24,7 +24,7 @@ logger.info('App listening on port ' + port);
 app.use('/api', routes);
 
 app.get('/',(req, res) => {
-    res.sendFile(path.join(__dirname, `${CLIENT_PATH}//public/index.html`));
+    res.sendFile(path.join(__dirname, `${CLIENT_PATH}/public/index.html`));
 });
 
 app.listen(port);

@@ -1,8 +1,16 @@
-import Vue from 'vue'
-import App from './App.vue'
+import Vue from 'vue';
+import App from './App.vue';
 
-Vue.config.productionTip = false
+import axios from 'axios';
+import router from './router';
+
+Vue.config.productionTip = false;
+
+Vue.prototype.$http = axios.create({
+    baseURL: process.env.NODE_ENV === 'development' ? 'http://localhost:9191/api' : 'api'
+});
 
 new Vue({
-  render: h => h(App),
+    router,
+    render: h => h(App)
 }).$mount('#app')
