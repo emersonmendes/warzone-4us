@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/server.js",
-    "heroku-prebuild": "npm --prefix ./web/ install -only=dev && npm --prefix ./web/ run build"
+    "heroku-postbuild": "npm --prefix ./web/ install -only=dev && npm --prefix ./web/ run build"
   },
   "author": "",
   "license": "ISC",
