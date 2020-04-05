@@ -87,7 +87,6 @@
                 players: players
             });
             this.loading = false;
-            this.player = null;
             return response.data;
         },
 
@@ -108,6 +107,9 @@
                 platform: this.platform
             });
             this.data = await this.getStats(this.players);
+
+            this.player = null;
+
         },
 
         removePlayer(item){
