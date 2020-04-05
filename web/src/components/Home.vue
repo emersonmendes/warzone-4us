@@ -15,7 +15,7 @@
                     <option value="battle">Battle</option>
                     <option value="steam">Steam</option>
                     <option value="xbl">XBL</option>
-                    <option value="acti">Uno</option>
+                    <option value="uno">Activision</option>
                 </select>
             </div>
 

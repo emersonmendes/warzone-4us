@@ -2,6 +2,7 @@
 
 const codBaseURL = "https://my.callofduty.com/api/papi-client/";
 const axios = require('axios').create({ baseURL: codBaseURL });
+const logger = require('./logger');
 
 async function getStats(data, cbSuccess, cbError){
 
@@ -15,7 +16,7 @@ async function getStats(data, cbSuccess, cbError){
 
         for( const d of data){
 
-            const url = `/stats/cod/v1/title/mw/platform/${d.platform}/gamer/${d.player}/profile/type/wz`;
+            const url = `/stats/cod/v1/title/mw/platform/${d.platform}/gamer/${d.player.replace("#","%")}/profile/type/wz`;
 
             const response = await axios.get(url);
 
@@ -43,7 +44,7 @@ async function getStats(data, cbSuccess, cbError){
         cbSuccess(result);
 
     } catch(err){
-        console.log(err);
+        logger.error(err);
         cbError();
     }
 

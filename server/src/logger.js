@@ -7,7 +7,7 @@ const appFormat = printf(({
     level,
     message,
     timestamp
-}) => `[totem] ${timestamp} [${level}] ${message}`);
+}) => `[warzone-4us] ${timestamp} [${level}] ${message}`);
 
 const logger = createLogger({
     level: 'info',
