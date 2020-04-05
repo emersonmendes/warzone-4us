@@ -1,25 +1,21 @@
 {
-  "name": "server",
+  "name": "warzone-4us",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/server.js",
-    "heroku-postbuild": "npm --prefix ./web/ install -only=dev && npm --prefix ./web/ run build"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server/src/server.js",
+    "heroku-prebuild": "./heroku-build.sh"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emersonmendes/warzone-4us.git"
+  },
+  "author": "Emerson Mendes",
   "license": "ISC",
-  "dependencies": {
-    "axios": "^0.19.2",
-    "body-parser": "^1.19.0",
-    "cors": "^2.8.5",
-    "express": "^4.17.1",
-    "winston": "^3.2.1"
+  "bugs": {
+    "url": "https://github.com/emersonmendes/warzone-4us/issues"
   },
-  "devDependencies": {
-    "eslint": "^6.8.0"
-  },
-  "engines": {
-    "node": "12.16.x"
-  }
+  "homepage": "https://github.com/emersonmendes/warzone-4us#readme"
 }
