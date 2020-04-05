@@ -1,6 +1,6 @@
 'use strict';
 
-const CLIENT_PATH = '../../web';
+const CLIENT_PATH = '../web';
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
