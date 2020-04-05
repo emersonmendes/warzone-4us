@@ -19,7 +19,7 @@ async function getStats(data, cbSuccess, cbError){
 
             const response = await axios.get(url);
 
-            if(response.data.status === 'success' && response.data.data.lifetime.mode.br){
+            if(response.data.status === 'success' && response.data.data.lifetime.mode.br_all){
                 const data = response.data.data;
                 const properties = data.lifetime.mode.br.properties;
                 result.push({
