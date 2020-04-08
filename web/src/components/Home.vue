@@ -2,34 +2,8 @@
 
   <div>
 
-    <div class="row form">
-        <form class="form-inline">
-
-            <div class="col-sm">
-                <input type="text" class="form-control" placeholder="Digite o Usuário" v-model="player">
-            </div>
-
-             <div class="col-sm">
-                <select class="form-control" id="platform" v-bind:value="platform" v-on:change="platform = $event.target.value">
-                    <option value="psn">PSN</option>
-                    <option value="battle">Battle</option>
-                    <option value="steam">Steam</option>
-                    <option value="xbl">XBL</option>
-                    <option value="uno">Activision</option>
-                </select>
-            </div>
-
-            <div class="col-sm">
-                <button class="btn btn-primary" type="button" @click="addPlayer()">
-                    <i class="fas fa-plus fa-sm"></i>
-                </button>
-            </div>
-
-            <div class="loading" v-show="loading">
-                Carregando ...
-            </div>
-
-        </form>
+    <div class="loading" v-show="loading">
+        Carregando ...
     </div>
 
     <div class="row">
@@ -66,11 +40,60 @@
 
     </div>
 
+    <button class="btn btn-primary add-btn" type="button" data-toggle="modal" data-target=".modal-add-player">
+        <i class="fas fa-plus fa-sm"></i>
+    </button>
+
+    <!-- modal -->
+    <div id="modalAddPlayer" class="modal fade modal-add-player" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    <form class="form">
+
+                        <div class="form-group">
+                            <label >Usuário:</label>
+                            <input type="text" class="form-control" v-model="player">
+                        </div>
+
+                        <div class="form-group">
+                            <label >Plataforma:</label>
+                            <select class="form-control" id="platform" v-bind:value="platform" v-on:change="platform = $event.target.value">
+                                <option value="psn">PSN</option>
+                                <option value="battle">Battle</option>
+                                <option value="steam">Steam</option>
+                                <option value="xbl">XBL</option>
+                                <option value="uno">Activision</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary" type="button" @click="addPlayer()" data-dismiss="modal">
+                            Adicionar
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
   </div>
 
 </template>
 
 <script>
+
   export default {
     name: 'Home',
     data: () => ({
@@ -182,13 +205,19 @@
     .form-control {
         border: 1px solid #dadada;
     }
-    .form {
-        padding-bottom: 20px;
+    .add-btn {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        margin: 65px 25px;
     }
     .loading {
         position: absolute;
         top: 0;
         right: 0;
         padding: 23px;
+    }
+    .modal-header{
+        padding: 5px 16px;
     }
 </style>
