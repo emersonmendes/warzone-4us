@@ -25,7 +25,7 @@
                 </button>
             </div>
 
-            <div v-show="loading">
+            <div class="loading" v-show="loading">
                 Carregando ...
             </div>
 
@@ -78,23 +78,36 @@
         platform: 'psn',
         player: null,
         players: [],
-        loading: false
+        loading: true
     }),
     methods: {
 
         async getStats(players){
+
             this.loading = true;
-            const response = await this.$http.post('/stats', {
-                players: players
-            });
+
+            if(!players || !players.length){
+                this.loading = false;
+                return [];
+            }
+
+            const response = await this.$http.post('/stats', { players: players });
+
             this.loading = false;
+
             return response.data;
+
         },
 
-        async addPlayer(){
+        async updatePlayersData(){
+            this.data = await this.getStats(this.players);
+            this.player = null;
+        },
+
+        addPlayer(){
 
             if(!this.player){
-                alert(`Digite o usuário da plataforma selecionada`);
+                alert("Digite o usuário da plataforma selecionada");
                 return;
             }
 
@@ -107,29 +120,56 @@
                 player: this.player,
                 platform: this.platform
             });
-            this.data = await this.getStats(this.players);
 
-            this.player = null;
+            this.setPlayersToStorage(this.players);
+
+            this.updatePlayersData();
 
         },
 
         removePlayer(item){
+            this.clearPulling();
             this.data.splice(this.data.indexOf(item), 1);
             this.players.splice(this.data.indexOf(this.players.filter( p => p.player === item.username)[0]), 1);
+            this.setPlayersToStorage(this.players);
+            this.setPulling();
         },
 
-        beforeDestroy () {
-            clearInterval(this.timer)
+        setPulling(){
+
+            const TIMEOUT = 5000
+
+            this.timer = setInterval(async () => {
+                this.data = await this.getStats(this.players);
+            }, TIMEOUT);
+
+        },
+
+        clearPulling() {
+            clearInterval(this.timer);
+        },
+
+        beforeDestroy() {
+            this.clearPulling();
+        },
+
+        getPlayersFromStorage(){
+            if(localStorage.players){
+                return JSON.parse(localStorage.getItem("players"));
+            }
+            return [];
+        },
+
+        setPlayersToStorage(players){
+            localStorage.setItem("players", JSON.stringify(players));
         }
 
     },
 
     async created(){
-        this.timer =  setInterval(async () => {
-            if(this.players && this.players.length){
-                this.data = await this.getStats(this.players);
-            }
-        }, 5000);
+        this.players = this.getPlayersFromStorage();
+        this.data = await this.getStats(this.players);
+        this.setPulling();
     }
 
   }
@@ -144,5 +184,11 @@
     }
     .form {
         padding-bottom: 20px;
+    }
+    .loading {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 23px;
     }
 </style>
