@@ -18,16 +18,18 @@
                         </div>
 
                         <div class="col mr-6" v-if="!item.error">
-                            <div class="h4 font-weight-bold text-primary mb-1">{{item.username}}</div>
+                            <div class="h4 font-weight-bold text-dark mb-1">{{item.username}} <i :class="getPlatformIcon(item.platform)"></i></div>
                             <div class="h6 mb-0 font-weight-bold">Nível: {{item.level}}</div>
                             <div class="h6 mb-0 font-weight-bold">Partidas: {{item.gamesPlayed}}</div>
                             <div class="h6 mb-0 font-weight-bold">Vitórias: {{item.wins}}</div>
                             <div class="h6 mb-0 font-weight-bold">Execuções: {{item.kills}}</div>
                             <div class="h6 mb-0 font-weight-bold">Mortes: {{item.deaths}}</div>
-                            <div class="h6 mb-0 font-weight-bold">Balanço: <span class="badge badge-pill" v-bind:class="{ 'badge-danger':(item.balance < 0), 'badge-success':(item.balance >= 0)}">{{item.balance}} </span></div>
+                            <div class="h6 mb-0 font-weight-bold">
+                                Balanço: <span class="badge badge-pill" v-bind:class="{ 'badge-danger':(item.balance < 0), 'badge-success':(item.balance >= 0)}">{{item.balance}} ( {{Math.round(item.kdRatio * 100) / 100}} ) </span>
+                            </div>
                         </div>
 
-                        <a href="#" class="btn btn-danger" @click="removePlayer(item)">
+                        <a href="#" class="btn-remove text-danger" @click="removePlayer(item)">
                             <i class="fas fa-trash fa-sm"></i>
                         </a>
 
@@ -97,11 +99,12 @@
   export default {
     name: 'Home',
     data: () => ({
-        data : [],
+        data: [],
         platform: 'psn',
         player: null,
         players: [],
-        loading: true
+        loading: true,
+        platformIcons: []
     }),
     methods: {
 
@@ -139,6 +142,8 @@
                 return;
             }
 
+            this.clearPulling();
+
             this.players.push({
                 player: this.player,
                 platform: this.platform
@@ -147,6 +152,8 @@
             this.setPlayersToStorage(this.players);
 
             this.updatePlayersData();
+
+            this.setPulling();
 
         },
 
@@ -185,11 +192,26 @@
 
         setPlayersToStorage(players){
             localStorage.setItem("players", JSON.stringify(players));
+        },
+
+        getPlatformIcon(platform){
+            const iconClass = this.platformIcons[platform];
+
+            if(!iconClass){
+                return this.platformIcons["default"];
+            }
+
+            return iconClass;
         }
 
     },
 
     async created(){
+        this.platformIcons = {
+            psn: "fab fa-playstation",
+            xbl: "fab fa-xbox",
+            default: "fa fa-desktop"
+        };
         this.players = this.getPlayersFromStorage();
         this.data = await this.getStats(this.players);
         this.setPulling();
@@ -219,5 +241,17 @@
     }
     .modal-header{
         padding: 5px 16px;
+    }
+    .btn-remove {
+        font-size: 22px;
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 18px 20px;
+    }
+    .card {
+        border-radius: 30px;
+        padding-bottom: 0px !important;
+        padding-top: 0px !important;
     }
 </style>

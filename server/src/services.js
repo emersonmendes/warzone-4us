@@ -30,7 +30,9 @@ async function getStats(data, cbSuccess, cbError){
                     kills: properties.kills,
                     deaths: properties.deaths,
                     balance: properties.kills - properties.deaths,
-                    gamesPlayed: properties.gamesPlayed
+                    gamesPlayed: properties.gamesPlayed,
+                    kdRatio: properties.kdRatio,
+                    platform: data.platform
                 });
             } else {
                 result.push({
