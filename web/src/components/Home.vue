@@ -29,7 +29,7 @@
                             </div>
                         </div>
 
-                        <a href="#" class="btn-remove text-danger" @click="removePlayer(item)">
+                        <a href="#" class="btn-remove text-danger" @click="removePlayer(item)" data-toggle="tooltip" data-placement="left" title="Remover player">
                             <i class="fas fa-trash fa-sm"></i>
                         </a>
 
@@ -43,7 +43,7 @@
     </div>
 
     <button class="btn btn-primary add-btn" type="button" data-toggle="modal" data-target=".modal-add-player">
-        <i class="fas fa-plus fa-sm"></i>
+        <i class="fas fa-plus fa-sm" data-toggle="tooltip" data-placement="left" title="Adicionar player"></i>
     </button>
 
     <!-- modal -->
@@ -53,7 +53,7 @@
 
                 <div class="modal-header">
                     <h5 class="modal-title"></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-toggle="tooltip" data-placement="left" title="Fechar">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -96,7 +96,9 @@
 
 <script>
 
-  export default {
+/* global $ */
+
+export default {
     name: 'Home',
     data: () => ({
         data: [],
@@ -215,9 +217,15 @@
         this.players = this.getPlayersFromStorage();
         this.data = await this.getStats(this.players);
         this.setPulling();
+    },
+
+    watch: {
+        data: function(){
+            this.$nextTick(() => $('[data-toggle="tooltip"]').tooltip());
+        }
     }
 
-  }
+}
 </script>
 
 <style scoped>
@@ -253,5 +261,8 @@
         border-radius: 30px;
         padding-bottom: 0px !important;
         padding-top: 0px !important;
+    }
+    .border-left-primary {
+        border-left: 9px solid #4e73df !important;
     }
 </style>
