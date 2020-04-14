@@ -1,8 +1,59 @@
 'use strict';
 
-const codBaseURL = "https://my.callofduty.com/api/papi-client/";
-const axios = require('axios').create({ baseURL: codBaseURL });
 const logger = require('./logger');
+
+const codBaseURL = "https://my.callofduty.com/api/papi-client";
+const profileURL = "https://profile.callofduty.com";
+
+const axios = require('axios').create({ baseURL: codBaseURL });
+const request = require('request');
+const cookie = require('cookie');
+
+let tokensCookie = '';
+
+async function getLoginToken(){
+    const response = await axios.get(`${profileURL}/cod/login`);
+    return cookie.parse(response.headers["set-cookie"][0])['XSRF-TOKEN'];
+}
+
+function doPostRequest(options){
+    return new Promise(function(resolve, reject){
+        request(options, (error, response, body) => {
+            if(error){
+                reject(error);
+            } else {
+                resolve(response);
+            }
+        });
+    });
+}
+
+async function doLogin(){
+
+    const token = await getLoginToken();
+
+    const options = {
+        url: `${profileURL}/do_login`,
+        method: 'POST',
+        form: {
+            'username': process.env.COD_USER,
+            'password': process.env.COD_PASS,
+            'remember_me': 'true',
+            '_csrf': token
+        },
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Cookie': `new_SiteId=cod; check=true; XSRF-TOKEN=${token}; `
+        }
+    };
+
+    const response = await doPostRequest(options);
+    const cookies = response.headers['set-cookie'];
+    const ssoCookie = cookie.parse(cookies.filter(x => x.includes("ACT_SSO_COOKIE"))[0])['ACT_SSO_COOKIE'];
+
+    return `ACT_SSO_COOKIE=${ssoCookie}; `
+
+}
 
 async function getStats(data, cbSuccess, cbError){
 
@@ -11,14 +62,23 @@ async function getStats(data, cbSuccess, cbError){
         let result = [];
 
         if(!data || data.length === 0){
-            return [];
+            cbSuccess([]);
         }
 
-        for( const d of data){
+        if(!tokensCookie){
+            tokensCookie = await doLogin();
+        }
+
+        for(const d of data){
 
             const url = `/stats/cod/v1/title/mw/platform/${d.platform}/gamer/${d.player.replace("#","%")}/profile/type/wz`;
 
-            const response = await axios.get(url);
+            const response = await axios.get(url, { headers: { 'Cookie': tokensCookie } });
+
+            if(response.data.status === 'error' && response.data.data.message.includes('not authenticated')){
+                tokensCookie = "";
+                break;
+            }
 
             if(response.data.status === 'success' && response.data.data.lifetime.mode.br_all){
                 const data = response.data.data;

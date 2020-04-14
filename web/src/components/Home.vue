@@ -169,7 +169,7 @@ export default {
 
         setPulling(){
 
-            const TIMEOUT = 5000
+            const TIMEOUT = 10000;
 
             this.timer = setInterval(async () => {
                 this.data = await this.getStats(this.players);
