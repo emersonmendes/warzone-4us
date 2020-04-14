@@ -80,6 +80,14 @@ async function getStats(data, cbSuccess, cbError){
                 break;
             }
 
+            if(response.data.status === 'error' && response.data.data.message.includes('limit exceeded')){
+                result.push({
+                    username: d.player,
+                    error: `Aguarde um momento. Houve muitas requisições simultaneas.`
+                });
+                break;
+            }
+
             if(response.data.status === 'success' && response.data.data.lifetime.mode.br_all){
                 const data = response.data.data;
                 const properties = data.lifetime.mode.br.properties;
