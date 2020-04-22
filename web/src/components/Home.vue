@@ -3,11 +3,11 @@
   <div>
 
     <div class="loading" v-show="loading">
-        Atualizando ...
+        <span class="loading-text">Atualizando ...</span>
     </div>
 
     <div class="loading" v-show="!loading">
-        Irá atualizar a cada {{TIMEOUT / 1000}} segundos automaticamente.
+        <span class="loading-text">Irá atualizar a cada {{TIMEOUT / 1000}} segundos automaticamente.</span>
     </div>
 
     <div class="row">
@@ -258,6 +258,13 @@ export default {
         right: 0;
         padding: 23px;
     }
+
+    @media (max-width: 576px) {
+        .loading-text {
+            font-size: 12px;
+        }
+    }
+
     .modal-header{
         padding: 5px 16px;
     }
