@@ -326,10 +326,4 @@ export default {
     .border-left-primary {
         border-left: 9px solid #4e73df !important;
     }
-    .scroll-to-top {
-        width: 38.25px;
-        height: 38px;
-        line-height: 41px;
-        right: 24px;
-    }
 </style>
