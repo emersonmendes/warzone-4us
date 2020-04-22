@@ -30,14 +30,21 @@ function doPostRequest(options){
 
 async function doLogin(){
 
+    const user = process.env.COD_USER;
+    const pass = process.env.COD_PASS;
+
+    if(!user || !pass){
+        throw new Error("Argumenos de login não foram passados!");
+    }
+
     const token = await getLoginToken();
 
     const options = {
         url: `${profileURL}/do_login`,
         method: 'POST',
         form: {
-            'username': process.env.COD_USER,
-            'password': process.env.COD_PASS,
+            'username': user,
+            'password': pass,
             'remember_me': 'true',
             '_csrf': token
         },

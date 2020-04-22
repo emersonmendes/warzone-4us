@@ -3,7 +3,11 @@
   <div>
 
     <div class="loading" v-show="loading">
-        Carregando ...
+        Atualizando ...
+    </div>
+
+    <div class="loading" v-show="!loading">
+        Irá atualizar a cada {{TIMEOUT / 1000}} segundos automaticamente.
     </div>
 
     <div class="row">
@@ -44,6 +48,10 @@
 
     <button class="btn btn-primary add-btn" type="button" data-toggle="modal" data-target=".modal-add-player">
         <i class="fas fa-plus fa-sm" data-toggle="tooltip" data-placement="left" title="Adicionar player"></i>
+    </button>
+
+    <button class="btn btn-success update-btn" type="button" @click="updatePlayersData()">
+        <i class="fas fa-sync fa-sm" data-toggle="tooltip" data-placement="left" title="Atualizar"></i>
     </button>
 
     <!-- modal -->
@@ -106,7 +114,8 @@ export default {
         player: null,
         players: [],
         loading: true,
-        platformIcons: []
+        platformIcons: [],
+        TIMEOUT: 30000
     }),
     methods: {
 
@@ -165,16 +174,13 @@ export default {
             this.players.splice(this.data.indexOf(this.players.filter( p => p.player === item.username)[0]), 1);
             this.setPlayersToStorage(this.players);
             this.setPulling();
+            $('[data-toggle="tooltip"]').tooltip('dispose');
         },
 
         setPulling(){
-
-            const TIMEOUT = 10000;
-
             this.timer = setInterval(async () => {
-                this.data = await this.getStats(this.players);
-            }, TIMEOUT);
-
+                this.updatePlayersData();
+            }, this.TIMEOUT);
         },
 
         clearPulling() {
@@ -198,11 +204,9 @@ export default {
 
         getPlatformIcon(platform){
             const iconClass = this.platformIcons[platform];
-
             if(!iconClass){
                 return this.platformIcons["default"];
             }
-
             return iconClass;
         }
 
@@ -241,6 +245,13 @@ export default {
         right: 0;
         margin: 65px 25px;
     }
+    .update-btn {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        margin: 65px 75px;
+    }
+
     .loading {
         position: absolute;
         top: 0;
