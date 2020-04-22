@@ -7,7 +7,7 @@
     </div>
 
     <div class="loading" v-show="!loading">
-        <span class="loading-text">Atualiza a cada {{TIMEOUT / 1000}} segundos..</span>
+        <span class="loading-text">Atualizando em {{updateSecond}} ...</span>
     </div>
 
     <div class="row">
@@ -115,7 +115,8 @@ export default {
         players: [],
         loading: true,
         platformIcons: [],
-        TIMEOUT: 30000
+        updateSecond: 1,
+        updateTimeout: 30
     }),
     methods: {
 
@@ -178,9 +179,15 @@ export default {
         },
 
         setPulling(){
+            this.updateSecond = 1;
             this.timer = setInterval(async () => {
-                this.updatePlayersData();
-            }, this.TIMEOUT);
+                if(this.updateSecond === this.updateTimeout){
+                    this.updatePlayersData();
+                    this.updateSecond = 1;
+                } else {
+                    this.updateSecond += 1;
+                }
+            }, 1000);
         },
 
         clearPulling() {
@@ -234,7 +241,7 @@ export default {
 
 <style scoped>
     .badge {
-        font-size: 13px;
+        font-size: 15px;
     }
     .form-control {
         border: 1px solid #dadada;
