@@ -198,9 +198,11 @@ export default {
 
         removePlayer(item){
             this.clearPulling();
-            this.data.splice(this.data.indexOf(item), 1);
-            this.players.splice(this.data.indexOf(this.players.filter( p => p.player === item.username)[0]), 1);
-            this.setPlayersToStorage(this.players);
+            this.data = this.data.filter(d => (d.username !== item.username) ||  (d.error && !d.username));
+            if(item.username){
+                this.players = this.players.filter( p => p.player !== item.username);
+                this.setPlayersToStorage(this.players);
+            }
             this.setPulling();
             $('[data-toggle="tooltip"]').tooltip('dispose');
         },

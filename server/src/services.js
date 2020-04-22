@@ -12,7 +12,7 @@ const limitExceededPenaltyTimeout = 120000;
 let tokensCookie = '';
 let limitExceededPenalty = false;
 
-const http = rateLimit(axios.create({ baseURL: codBaseURL }), { maxRequests: 4, perMilliseconds: 1500 });
+const http = rateLimit(axios.create({ baseURL: codBaseURL }), { maxRequests: 4, perMilliseconds: 2000 });
 
 async function getLoginToken(){
     const response = await http.get(`${profileURL}/cod/login`);
