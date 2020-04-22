@@ -7,7 +7,7 @@
     </div>
 
     <div class="loading" v-show="!loading">
-        <span class="loading-text">Irá atualizar a cada {{TIMEOUT / 1000}} segundos automaticamente.</span>
+        <span class="loading-text">Atualiza a cada {{TIMEOUT / 1000}} segundos..</span>
     </div>
 
     <div class="row">
