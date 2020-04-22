@@ -1,18 +1,21 @@
 'use strict';
 
 const logger = require('./logger');
+const request = require('request');
+const cookie = require('cookie');
+const axios = require('axios');
+const rateLimit = require('axios-rate-limit');
 
 const codBaseURL = "https://my.callofduty.com/api/papi-client";
 const profileURL = "https://profile.callofduty.com";
-
-const axios = require('axios').create({ baseURL: codBaseURL });
-const request = require('request');
-const cookie = require('cookie');
-
+const limitExceededPenaltyTimeout = 60000;
 let tokensCookie = '';
+let limitExceededPenalty = false;
+
+const http = rateLimit(axios.create({ baseURL: codBaseURL }), { maxRequests: 4, perMilliseconds: 1500 });
 
 async function getLoginToken(){
-    const response = await axios.get(`${profileURL}/cod/login`);
+    const response = await http.get(`${profileURL}/cod/login`);
     return cookie.parse(response.headers["set-cookie"][0])['XSRF-TOKEN'];
 }
 
@@ -30,11 +33,13 @@ function doPostRequest(options){
 
 async function doLogin(){
 
+    logger.info('Efetuando login api cod.');
+
     const user = process.env.COD_USER;
     const pass = process.env.COD_PASS;
 
     if(!user || !pass){
-        throw new Error("Argumenos de login não foram passados!");
+        throw new Error("Variáveis de ambiente 'COD_USER' e 'COD_PASS' de login não foram setadas!");
     }
 
     const token = await getLoginToken();
@@ -64,6 +69,14 @@ async function doLogin(){
 
 async function getStats(data, cbSuccess, cbError){
 
+    const limitExceededMsg = 'Aguarde um momento. Houve muitas requisições simultâneas.';
+
+    if(limitExceededPenalty){
+        logger.warn(`Está na penalização por limite excedido de requisição na api do cod.`);
+        cbSuccess([{ error: limitExceededMsg }]);
+        return;
+    }
+
     try {
 
         let result = [];
@@ -80,7 +93,8 @@ async function getStats(data, cbSuccess, cbError){
 
             const url = `/stats/cod/v1/title/mw/platform/${d.platform}/gamer/${d.player.replace("#","%")}/profile/type/wz`;
 
-            const response = await axios.get(url, { headers: { 'Cookie': tokensCookie } });
+            logger.info(`Efetuando requisição getstats. for player: ${d.player}`);
+            const response = await http.get(url, { headers: { 'Cookie': tokensCookie } });
 
             if(response.data.status === 'error' && response.data.data.message.includes('not authenticated')){
                 tokensCookie = "";
@@ -88,10 +102,10 @@ async function getStats(data, cbSuccess, cbError){
             }
 
             if(response.data.status === 'error' && response.data.data.message.includes('limit exceeded')){
-                result.push({
-                    username: d.player,
-                    error: `Aguarde um momento. Houve muitas requisições simultaneas.`
-                });
+                result.push({ error: limitExceededMsg });
+                limitExceededPenalty = true;
+                logger.warn(`Foi penalizado em ${limitExceededPenaltyTimeout / 1000} segundos por limite excedido de requisição na api do cod.`);
+                setTimeout(() => limitExceededPenalty = false, limitExceededPenaltyTimeout);
                 break;
             }
 

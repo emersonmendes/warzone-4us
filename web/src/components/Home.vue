@@ -33,7 +33,7 @@
                             </div>
                         </div>
 
-                        <a href="#" class="btn-remove text-danger" @click="removePlayer(item)" data-toggle="tooltip" data-placement="left" title="Remover player">
+                        <a href="#" class="btn-remove text-danger" @click="removePlayer(item)" data-toggle="tooltip" data-placement="left" title="Remover player" v-if="!item.error">
                             <i class="fas fa-trash fa-sm"></i>
                         </a>
 
@@ -146,12 +146,17 @@ export default {
         addPlayer(){
 
             if(!this.player){
-                alert("Digite o usuário da plataforma selecionada");
+                this.showMessage("Digite o usuário da plataforma selecionada");
+                return;
+            }
+
+            if(this.players.length > 4){
+                this.showMessage("Máximo de players permitidos: 4");
                 return;
             }
 
             if(this.players.filter( p => p.player === this.player).length){
-                alert(`O usuário ${this.player} ja está na lista.`);
+                this.showMessage(`O usuário ${this.player} ja está na lista.`);
                 return;
             }
 
@@ -220,6 +225,10 @@ export default {
                 return this.platformIcons["default"];
             }
             return iconClass;
+        },
+
+        showMessage(message){
+            alert(message);
         }
 
     },
