@@ -8,7 +8,7 @@ const rateLimit = require('axios-rate-limit');
 
 const codBaseURL = "https://my.callofduty.com/api/papi-client";
 const profileURL = "https://profile.callofduty.com";
-const limitExceededPenaltyTimeout = 60000;
+const limitExceededPenaltyTimeout = 120000;
 let tokensCookie = '';
 let limitExceededPenalty = false;
 
