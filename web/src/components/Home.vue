@@ -140,6 +140,7 @@ export default {
         async updatePlayersData(){
             this.data = await this.getStats(this.players);
             this.player = null;
+            this.resetTime();
         },
 
         addPlayer(){
@@ -179,15 +180,19 @@ export default {
         },
 
         setPulling(){
-            this.updateSecond = this.updateTimeout;
+            this.resetTime();
             this.timer = setInterval(async () => {
                 if(this.updateSecond === 1){
                     this.updatePlayersData();
-                    this.updateSecond = this.updateTimeout;
+                    this.resetTime();
                 } else {
                     this.updateSecond -= 1;
                 }
             }, 1000);
+        },
+
+        resetTime(){
+            this.updateSecond = this.updateTimeout;
         },
 
         clearPulling() {
