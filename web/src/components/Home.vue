@@ -33,7 +33,7 @@
                             </div>
                         </div>
 
-                        <a href="#" class="btn-remove text-danger" @click="removePlayer(item)" data-toggle="tooltip" data-placement="left" title="Remover player" v-if="!item.username">
+                        <a href="#" class="btn-remove text-danger" @click="removePlayer(item)" data-toggle="tooltip" data-placement="left" title="Remover player" v-if="item.username">
                             <i class="fas fa-trash fa-sm"></i>
                         </a>
 
