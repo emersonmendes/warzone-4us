@@ -50,8 +50,9 @@
         <i class="fas fa-plus fa-sm" data-toggle="tooltip" data-placement="left" title="Adicionar player"></i>
     </button>
 
-    <button class="btn btn-success update-btn" type="button" @click="updatePlayersData()">
-        <i class="fas fa-sync fa-sm" data-toggle="tooltip" data-placement="left" title="Atualizar"></i>
+    <button class="btn btn-success update-btn" type="button" @click="callUpdatePlayersData()" v-bind:disabled="disableUpdateButton">
+        <i class="spinner-border spinner-border-sm" v-if="disableUpdateButton"></i>
+        <i class="fas fa-sync fa-sm" data-toggle="tooltip" data-placement="left" title="Atualizar" v-if="!disableUpdateButton"></i>
     </button>
 
     <!-- modals -->
@@ -137,7 +138,8 @@ export default {
         platformIcons: [],
         updateTimeout: 30,
         updateSecond: 0,
-        message: ''
+        message: '',
+        disableUpdateButton: false
     }),
     methods: {
 
@@ -156,6 +158,14 @@ export default {
 
             return response.data;
 
+        },
+
+        callUpdatePlayersData(){
+            this.disableUpdateButton = true;
+            setTimeout(() => {
+                this.disableUpdateButton = false;
+            }, 5000);
+            this.updatePlayersData();
         },
 
         async updatePlayersData(){
@@ -327,5 +337,11 @@ export default {
     }
     .border-left-primary {
         border-left: 9px solid #4e73df !important;
+    }
+    .spinner-border-sm {
+        width: 14px;
+        height: 14px;
+        border-width: 3px;
+        margin-bottom: 4px;
     }
 </style>
