@@ -33,7 +33,7 @@
                             </div>
                         </div>
 
-                        <a href="#" class="btn-remove text-danger" @click="removePlayer(item)" data-toggle="tooltip" data-placement="left" title="Remover player" v-if="!item.error">
+                        <a href="#" class="btn-remove text-danger" @click="removePlayer(item)" data-toggle="tooltip" data-placement="left" title="Remover player" v-if="!item.username">
                             <i class="fas fa-trash fa-sm"></i>
                         </a>
 
@@ -54,7 +54,8 @@
         <i class="fas fa-sync fa-sm" data-toggle="tooltip" data-placement="left" title="Atualizar"></i>
     </button>
 
-    <!-- modal -->
+    <!-- modals -->
+
     <div id="modalAddPlayer" class="modal fade modal-add-player" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-sm modal-dialog-centered">
             <div class="modal-content">
@@ -98,6 +99,25 @@
         </div>
     </div>
 
+    <div id="modalMessage" class="modal fade modal-message" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle fa-sm"></i></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-toggle="tooltip" data-placement="left" title="Fechar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <h6>{{message}}</h6>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
   </div>
 
 </template>
@@ -116,7 +136,8 @@ export default {
         loading: true,
         platformIcons: [],
         updateTimeout: 30,
-        updateSecond: 0
+        updateSecond: 0,
+        message: ''
     }),
     methods: {
 
@@ -227,8 +248,9 @@ export default {
             return iconClass;
         },
 
-        showMessage(message){
-            alert(message);
+        showMessage(_message){
+            this.message = _message;
+            $('#modalMessage').modal('show');
         }
 
     },
