@@ -171,7 +171,7 @@ export default {
                 return;
             }
 
-            if(this.players.length > 4){
+            if(this.players.length >= 4){
                 this.showMessage("Máximo de players permitidos: 4");
                 return;
             }
