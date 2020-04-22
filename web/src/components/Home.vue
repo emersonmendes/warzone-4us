@@ -115,8 +115,8 @@ export default {
         players: [],
         loading: true,
         platformIcons: [],
-        updateSecond: 1,
-        updateTimeout: 30
+        updateTimeout: 30,
+        updateSecond: 0
     }),
     methods: {
 
@@ -179,13 +179,13 @@ export default {
         },
 
         setPulling(){
-            this.updateSecond = 1;
+            this.updateSecond = this.updateTimeout;
             this.timer = setInterval(async () => {
-                if(this.updateSecond === this.updateTimeout){
+                if(this.updateSecond === 1){
                     this.updatePlayersData();
-                    this.updateSecond = 1;
+                    this.updateSecond = this.updateTimeout;
                 } else {
-                    this.updateSecond += 1;
+                    this.updateSecond -= 1;
                 }
             }, 1000);
         },
