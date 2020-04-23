@@ -106,18 +106,18 @@ async function getLastMatches(platform, player, cbSuccess, cbError){
 
     try {
 
-        // if(!tokensCookie){
-        //     tokensCookie = await doLogin();
-        // }
+        if(!tokensCookie){
+            tokensCookie = await doLogin();
+        }
 
-        // const response = await http.get(url, { headers: { 'Cookie': tokensCookie } });
+        const response = await http.get(url, { headers: { 'Cookie': tokensCookie } });
 
-        // if('success' === response.data.status){
-            const data = getFakeData();
-            cbSuccess(parseMatchesData(data.matches));
-        // } else {
-            // cbSuccess([]);
-        // }
+        if('success' === response.data.status){
+
+            cbSuccess(parseMatchesData(response.data.data.matches));
+        } else {
+            cbSuccess([]);
+        }
 
     } catch(err){
         logger.error(err);
@@ -197,16 +197,6 @@ async function getStats(data, cbSuccess, cbError){
         logger.error(err);
         cbError();
     }
-
-}
-
-function getFakeData(){
-
-    const fs = require('fs');
-
-    const data = fs.readFileSync('/home/emerson/Downloads/details-data-cod.json', 'utf8')
-
-    return JSON.parse(data).data;
 
 }
 

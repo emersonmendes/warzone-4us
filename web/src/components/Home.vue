@@ -135,40 +135,34 @@
                 </div>
 
                 <div class="modal-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-sm">
+                    <table class="table table-striped table-sm">
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col" style="font-size: 13px;">Pos</th>
-                                    <th scope="col" style="font-size: 13px;">Kills</th>
-                                    <th scope="col" style="font-size: 13px;">Mortes</th>
-                                    <th scope="col" style="font-size: 13px;">HS</th>
-                                    <th scope="col" style="font-size: 13px;">Players</th>
-                                    <th scope="col" style="font-size: 13px;">Time</th>
-                                    <th scope="col" style="font-size: 13px;">Time Vencedor</th>
+                                    <th scope="col" style="font-size: 13px; width: 5%;">Pos</th>
+                                    <th scope="col" style="font-size: 13px; width: 5%;">Kills</th>
+                                    <th scope="col" style="font-size: 13px; width: 10%;">Mortes</th>
+                                    <th scope="col" style="font-size: 13px; width: 5%;">HS</th>
+                                    <th scope="col" style="font-size: 13px; width: 10%;">Players</th>
+                                    <th scope="col" style="font-size: 13px; width: 30%;">Time</th>
+                                    <th scope="col" style="font-size: 13px; width: 35%;">Time Vencedor</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="match in matches" v-bind:key="match.matchID" style="font-size: 13px;">
-                                    <th scope="row">{{match.teamPlacement}}</th>
-                                    <td>{{match.kills}}</td>
-                                    <td>{{match.deaths}}</td>
-                                    <td>{{match.headshots}}</td>
-                                    <td>{{match.playerCount}}</td>
-                                    <td>
-                                        <div v-for="p in match.ourTeam" v-bind:key="p">
-                                            {{p}}
-                                        </div>
+                                    <td style="width: 5%;">{{match.teamPlacement}}</td>
+                                    <td style="width: 5%;">{{match.kills}}</td>
+                                    <td style="width: 10%;">{{match.deaths}}</td>
+                                    <td style="width: 5%;">{{match.headshots}}</td>
+                                    <td style="width: 10%;">{{match.playerCount}}</td>
+                                    <td style="width: 30%;">
+                                        <div v-for="p in match.ourTeam" v-bind:key="p">{{p}}</div>
                                     </td>
-                                    <td>
-                                        <div v-for="p in match.champTeam" v-bind:key="p">
-                                            {{p}}
-                                        </div>
+                                    <td style="width: 35%;">
+                                        <div v-for="p in match.champTeam" v-bind:key="p">{{p}}</div>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
                 </div>
 
             </div>
@@ -422,4 +416,33 @@ export default {
         border-width: 3px;
         margin-bottom: 4px;
     }
+
+    table {
+        width: 100%;
+    }
+
+    thead,
+    tbody,
+    tr,
+    td,
+    th {
+        display: block;
+    }
+
+    tr:after {
+        content: ' ';
+        display: block;
+        visibility: hidden;
+        clear: both;
+    }
+
+    tbody {
+        height: 400px;
+        overflow-y: auto;
+    }
+
+    tbody td, thead th {
+        float: left;
+    }
+
 </style>
