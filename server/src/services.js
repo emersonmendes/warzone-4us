@@ -67,6 +67,65 @@ async function doLogin(){
 
 }
 
+function parseMatchesData(data){
+
+    const matches = [];
+
+    for(const item of data){
+
+        const rankedTeams = item.rankedTeams;
+
+        const ourTeam = rankedTeams.filter( r => r.placement === item.playerStats.teamPlacement)[0].players.map( item => `<${item.platform}> ${item.username} (${item.playerStats.kills})`);
+        const champTeam = rankedTeams.filter( r => r.placement === 1.0)[0].players.map( item => `<${item.platform}> ${item.username} (${item.playerStats.kills})`);
+
+        const playerStats = item.playerStats;
+
+        matches.push({
+            matchID: item.matchID,
+            playerCount: item.playerCount,
+            kills: playerStats.kills,
+            headshots: playerStats.headshots,
+            deaths: playerStats.deaths,
+            gulagDeaths: playerStats.gulagDeaths,
+            damageDone: playerStats.damageDone,
+            damageTaken: playerStats.damageTaken,
+            teamPlacement: playerStats.teamPlacement,
+            ourTeam: ourTeam,
+            champTeam: champTeam
+        });
+
+    }
+
+    return matches;
+
+}
+
+async function getLastMatches(platform, player, cbSuccess, cbError){
+
+    const url = `/crm/cod/v2/title/mw/platform/${platform}/gamer/${player}/matches/wz/start/0/end/0/details`;
+
+    try {
+
+        // if(!tokensCookie){
+        //     tokensCookie = await doLogin();
+        // }
+
+        // const response = await http.get(url, { headers: { 'Cookie': tokensCookie } });
+
+        // if('success' === response.data.status){
+            const data = getFakeData();
+            cbSuccess(parseMatchesData(data.matches));
+        // } else {
+            // cbSuccess([]);
+        // }
+
+    } catch(err){
+        logger.error(err);
+        cbError();
+    }
+
+}
+
 async function getStats(data, cbSuccess, cbError){
 
     const limitExceededMsg = 'Aguarde um momento. Houve muitas requisições simultâneas.';
@@ -141,6 +200,17 @@ async function getStats(data, cbSuccess, cbError){
 
 }
 
+function getFakeData(){
+
+    const fs = require('fs');
+
+    const data = fs.readFileSync('/home/emerson/Downloads/details-data-cod.json', 'utf8')
+
+    return JSON.parse(data).data;
+
+}
+
 module.exports = {
-    getStats: getStats
+    getStats: getStats,
+    getLastMatches: getLastMatches
 }

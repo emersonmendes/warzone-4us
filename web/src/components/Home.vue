@@ -26,12 +26,16 @@
                             <div class="h6 mb-0 font-weight-bold">Nível: {{item.level}}</div>
                             <div class="h6 mb-0 font-weight-bold">Partidas: {{item.gamesPlayed}}</div>
                             <div class="h6 mb-0 font-weight-bold">Vitórias: {{item.wins}}</div>
-                            <div class="h6 mb-0 font-weight-bold">Execuções: {{item.kills}}</div>
+                            <div class="h6 mb-0 font-weight-bold">Kills: {{item.kills}}</div>
                             <div class="h6 mb-0 font-weight-bold">Mortes: {{item.deaths}}</div>
                             <div class="h6 mb-0 font-weight-bold">
                                 Balanço: <span class="badge badge-pill" v-bind:class="{ 'badge-danger':(item.balance < 0), 'badge-success':(item.balance >= 0)}">{{item.balance}} ( {{Math.round(item.kdRatio * 100) / 100}} ) </span>
                             </div>
                         </div>
+
+                        <a href="#" class="btn-matches text-success" @click="showMatches(item)" data-toggle="tooltip" data-placement="left" title="Ultimas partidas" v-if="!item.error">
+                            <i class="fas fa-align-justify fa-sm"></i>
+                        </a>
 
                         <a href="#" class="btn-remove text-danger" @click="removePlayer(item)" data-toggle="tooltip" data-placement="left" title="Remover player" v-if="item.username">
                             <i class="fas fa-trash fa-sm"></i>
@@ -119,6 +123,58 @@
         </div>
     </div>
 
+    <div id="modalMatches" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Últimas partidas</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-toggle="tooltip" data-placement="left" title="Fechar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" style="font-size: 13px;">Pos</th>
+                                    <th scope="col" style="font-size: 13px;">Kills</th>
+                                    <th scope="col" style="font-size: 13px;">Mortes</th>
+                                    <th scope="col" style="font-size: 13px;">HS</th>
+                                    <th scope="col" style="font-size: 13px;">Players</th>
+                                    <th scope="col" style="font-size: 13px;">Time</th>
+                                    <th scope="col" style="font-size: 13px;">Time Vencedor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="match in matches" v-bind:key="match.matchID" style="font-size: 13px;">
+                                    <th scope="row">{{match.teamPlacement}}</th>
+                                    <td>{{match.kills}}</td>
+                                    <td>{{match.deaths}}</td>
+                                    <td>{{match.headshots}}</td>
+                                    <td>{{match.playerCount}}</td>
+                                    <td>
+                                        <div v-for="p in match.ourTeam" v-bind:key="p">
+                                            {{p}}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div v-for="p in match.champTeam" v-bind:key="p">
+                                            {{p}}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
   </div>
 
 </template>
@@ -139,7 +195,8 @@ export default {
         updateTimeout: 30,
         updateSecond: 0,
         message: '',
-        disableUpdateButton: false
+        disableUpdateButton: false,
+        matches: []
     }),
     methods: {
 
@@ -158,6 +215,13 @@ export default {
 
             return response.data;
 
+        },
+
+        async getMatches(platform, username){
+            const response = await this.$http.get('/matches', {
+                params: { platform, username }
+            });
+            return response.data;
         },
 
         callUpdatePlayersData(){
@@ -263,6 +327,11 @@ export default {
         showMessage(_message){
             this.message = _message;
             $('#modalMessage').modal('show');
+        },
+
+        async showMatches(item){
+            this.matches = await this.getMatches(item.platform, item.username);
+            $('#modalMatches').modal('show');
         }
 
     },
@@ -330,6 +399,15 @@ export default {
         right: 0;
         margin: 18px 20px;
     }
+
+    .btn-matches {
+        font-size: 22px;
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 18px 55px;
+    }
+
     .card {
         border-radius: 30px;
         padding-bottom: 0px !important;

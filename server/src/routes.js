@@ -21,4 +21,12 @@ routes.route('/stats').post((req, res) => {
     });
 });
 
+routes.route('/matches').get((req, res) => {
+    services.getLastMatches(req.query.platform, req.query.username, (result) => {
+        res.status(200).json(result);
+    }, () => {
+        res.status(400).json({ msg : "deu erro!"});
+    });
+});
+
 module.exports = routes;
