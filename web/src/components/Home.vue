@@ -143,8 +143,8 @@
                                     <th scope="col" style="font-size: 13px; width: 10%;">Mortes</th>
                                     <th scope="col" style="font-size: 13px; width: 5%;">HS</th>
                                     <th scope="col" style="font-size: 13px; width: 10%;">Players</th>
-                                    <th scope="col" style="font-size: 13px; width: 30%;">Time</th>
-                                    <th scope="col" style="font-size: 13px; width: 35%;">Time Vencedor</th>
+                                    <th scope="col" style="font-size: 13px; width: 33%;">Time</th>
+                                    <th scope="col" style="font-size: 13px; width: 32%;">Time Vencedor</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -154,10 +154,10 @@
                                     <td style="width: 10%;">{{match.deaths}}</td>
                                     <td style="width: 5%;">{{match.headshots}}</td>
                                     <td style="width: 10%;">{{match.playerCount}}</td>
-                                    <td style="width: 30%;">
+                                    <td style="width: 33%;">
                                         <div v-for="p in match.ourTeam" v-bind:key="p">{{p}}</div>
                                     </td>
-                                    <td style="width: 35%;">
+                                    <td style="width: 32%;">
                                         <div v-for="p in match.champTeam" v-bind:key="p">{{p}}</div>
                                     </td>
                                 </tr>

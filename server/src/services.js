@@ -75,8 +75,17 @@ function parseMatchesData(data){
 
         const rankedTeams = item.rankedTeams;
 
-        const ourTeam = rankedTeams.filter( r => r.placement === item.playerStats.teamPlacement)[0].players.map( item => `<${item.platform}> ${item.username} (${item.playerStats.kills})`);
-        const champTeam = rankedTeams.filter( r => r.placement === 1.0)[0].players.map( item => `<${item.platform}> ${item.username} (${item.playerStats.kills})`);
+        let ourTeam;
+        let champTeam;
+
+        if(item.playerStats.teamPlacement){
+            ourTeam = rankedTeams.filter(r => r.placement === item.playerStats.teamPlacement);
+        }
+
+        champTeam = rankedTeams.filter(r => r.placement === 1.0);
+
+        const ourTeamResult = (ourTeam && ourTeam.length) ? ourTeam[0].players.map(item => `${item.platform}> ${item.username} (${item.playerStats.kills})`) : ['Não definido'];
+        const champTeamResult = (champTeam && champTeam.length) ? champTeam[0].players.map(item => `${item.platform}> ${item.username} (${item.playerStats.kills})`) : ['Não definido'];
 
         const playerStats = item.playerStats;
 
@@ -90,8 +99,8 @@ function parseMatchesData(data){
             damageDone: playerStats.damageDone,
             damageTaken: playerStats.damageTaken,
             teamPlacement: playerStats.teamPlacement,
-            ourTeam: ourTeam,
-            champTeam: champTeam
+            ourTeam: ourTeamResult,
+            champTeam: champTeamResult
         });
 
     }
