@@ -33,7 +33,7 @@
                             </div>
                         </div>
 
-                        <a href="#" class="btn-matches text-success" @click="showMatches(item)" data-toggle="tooltip" data-placement="left" title="Ultimas partidas" v-if="!item.error">
+                        <a href="#" class="btn-matches text-success" @click="showMatches(item)" data-toggle="tooltip" data-placement="left" title="Ultimas partidas" v-if="!item.error" v-bind:disabled="disableDetailsButton">
                             <i class="fas fa-align-justify fa-sm"></i>
                         </a>
 
@@ -190,6 +190,7 @@ export default {
         updateSecond: 0,
         message: '',
         disableUpdateButton: false,
+        disableDetailsButton: false,
         matches: []
     }),
     methods: {
@@ -212,9 +213,11 @@ export default {
         },
 
         async getMatches(platform, username){
+            this.disableDetailsButton = true;
             const response = await this.$http.get('/matches', {
                 params: { platform, username }
             });
+            this.disableDetailsButton = false;
             return response.data;
         },
 
@@ -324,6 +327,9 @@ export default {
         },
 
         async showMatches(item){
+            if(this.disableDetailsButton){
+                return;
+            }
             this.matches = await this.getMatches(item.platform, item.username);
             $('#modalMatches').modal('show');
         }

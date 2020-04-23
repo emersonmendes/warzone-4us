@@ -111,6 +111,8 @@ function parseMatchesData(data){
 
 async function getLastMatches(platform, player, cbSuccess, cbError){
 
+    logger.info('chamando getLastMatches.');
+
     const url = `/crm/cod/v2/title/mw/platform/${platform}/gamer/${player}/matches/wz/start/0/end/0/details`;
 
     try {
