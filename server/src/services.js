@@ -78,14 +78,11 @@ function parseMatchesData(data){
         let ourTeam;
         let champTeam;
 
-        if(item.playerStats.teamPlacement){
-            ourTeam = rankedTeams.filter(r => r.placement === item.playerStats.teamPlacement);
-        }
-
+        ourTeam = rankedTeams.filter(r => r.players.map( p => p.team).includes(item.player.team));
         champTeam = rankedTeams.filter(r => r.placement === 1.0);
 
-        const ourTeamResult = (ourTeam && ourTeam.length) ? ourTeam[0].players.map(item => `${item.platform}> ${item.username} (${item.playerStats.kills})`) : ['Não definido'];
-        const champTeamResult = (champTeam && champTeam.length) ? champTeam[0].players.map(item => `${item.platform}> ${item.username} (${item.playerStats.kills})`) : ['Não definido'];
+        const ourTeamResult = (ourTeam && ourTeam.length) ? ourTeam[0].players.map(item => `${item.platform}> ${item.username} (${item.playerStats.kills})`) : ['?'];
+        const champTeamResult = (champTeam && champTeam.length) ? champTeam[0].players.map(item => `${item.platform}> ${item.username} (${item.playerStats.kills})`) : ['?'];
 
         const playerStats = item.playerStats;
 
@@ -98,7 +95,7 @@ function parseMatchesData(data){
             gulagDeaths: playerStats.gulagDeaths,
             damageDone: playerStats.damageDone,
             damageTaken: playerStats.damageTaken,
-            teamPlacement: playerStats.teamPlacement,
+            teamPlacement: (ourTeam && ourTeam.length) ? ourTeam[0].placement : '?',
             ourTeam: ourTeamResult,
             champTeam: champTeamResult
         });
@@ -124,7 +121,6 @@ async function getLastMatches(platform, player, cbSuccess, cbError){
         const response = await http.get(url, { headers: { 'Cookie': tokensCookie } });
 
         if('success' === response.data.status){
-
             cbSuccess(parseMatchesData(response.data.data.matches));
         } else {
             cbSuccess([]);
