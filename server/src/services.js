@@ -139,7 +139,9 @@ function parseMatchesData(data){
             damageTaken: playerStats.damageTaken,
             teamPlacement: (ourTeam && ourTeam.length) ? ourTeam[0].placement : '?',
             ourTeam: ourTeamResult,
-            champTeam: champTeamResult
+            champTeam: champTeamResult,
+            utcStartDate: (item.utcStartSeconds * 1000),
+            utcEndDate: (item.utcEndSeconds * 1000)
         });
 
     }

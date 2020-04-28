@@ -124,7 +124,7 @@
     </div>
 
     <div id="modalMatches" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
 
                 <div class="modal-header">
@@ -136,33 +136,35 @@
 
                 <div class="modal-body">
                     <table class="table table-striped table-sm">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col" style="font-size: 13px; width: 5%;">Pos</th>
-                                    <th scope="col" style="font-size: 13px; width: 5%;">Kills</th>
-                                    <th scope="col" style="font-size: 13px; width: 10%;">Mortes</th>
-                                    <th scope="col" style="font-size: 13px; width: 5%;">HS</th>
-                                    <th scope="col" style="font-size: 13px; width: 10%;">Players</th>
-                                    <th scope="col" style="font-size: 13px; width: 33%;">Time</th>
-                                    <th scope="col" style="font-size: 13px; width: 32%;">Time Vencedor</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="match in matches" v-bind:key="match.matchID" style="font-size: 13px;">
-                                    <td style="width: 5%;">{{match.teamPlacement}}</td>
-                                    <td style="width: 5%;">{{match.kills}}</td>
-                                    <td style="width: 10%;">{{match.deaths}}</td>
-                                    <td style="width: 5%;">{{match.headshots}}</td>
-                                    <td style="width: 10%;">{{match.playerCount}}</td>
-                                    <td style="width: 33%;">
-                                        <div v-for="p in match.ourTeam" v-bind:key="p">{{p}}</div>
-                                    </td>
-                                    <td style="width: 32%;">
-                                        <div v-for="p in match.champTeam" v-bind:key="p">{{p}}</div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col" class="col1">Data</th>
+                                <th scope="col" class="col2">Pos</th>
+                                <th scope="col" class="col3">Kills</th>
+                                <th scope="col" class="col4">Mortes</th>
+                                <th scope="col" class="col5">HS</th>
+                                <th scope="col" class="col6">Players</th>
+                                <th scope="col" class="col7">Time</th>
+                                <th scope="col" class="col8">Time Vencedor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="match in matches" v-bind:key="match.matchID" style="font-size: 13px;">
+                                <td class="col1">{{getDateTime(match.utcStartDate)}}</td>
+                                <td class="col2">{{match.teamPlacement}}</td>
+                                <td class="col3">{{match.kills}}</td>
+                                <td class="col4">{{match.deaths}}</td>
+                                <td class="col5">{{match.headshots}}</td>
+                                <td class="col6">{{match.playerCount}}</td>
+                                <td class="col7">
+                                    <div v-for="p in match.ourTeam" v-bind:key="p">{{p}}</div>
+                                </td>
+                                <td class="col8">
+                                    <div v-for="p in match.champTeam" v-bind:key="p">{{p}}</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
             </div>
@@ -194,6 +196,18 @@ export default {
         matches: []
     }),
     methods: {
+
+        addZero(i) {
+            if (i < 10) {
+                i = "0" + i;
+            }
+            return i;
+        },
+
+        getDateTime(milli){
+            const date = new Date(milli);
+            return `${this.addZero(date.getDate())}/${this.addZero(date.getMonth())}/${date.getFullYear()} ${this.addZero(date.getHours())}:${this.addZero(date.getMinutes())}`;
+        },
 
         async getStats(players){
 
@@ -427,11 +441,12 @@ export default {
         width: 100%;
     }
 
-    thead,
-    tbody,
-    tr,
-    td,
-    th {
+    table > thead > tr {
+        font-size: 13px;
+        padding-right: 15px;
+    }
+
+    thead, tbody, tr, td, th {
         display: block;
     }
 
@@ -451,10 +466,65 @@ export default {
         float: left;
     }
 
-
-
     .text-dark {
         color:#949494 !important;
+    }
+
+    /** colunas tabela */
+
+    .col1 {
+        width: 15%;
+    }
+    .col2 {
+        width: 5%;
+    }
+    .col3 {
+        width: 5%;
+    }
+    .col4 {
+        width: 5%;
+    }
+    .col5 {
+        width: 5%;
+    }
+    .col6 {
+        width: 15%;
+    }
+    .col7 {
+        width: 25%;
+    }
+    .col8 {
+        width: 25%;
+    }
+
+    @media (max-width: 576px) {
+        table > thead > tr {
+            padding-right: 0px;
+        }
+        .col1 {
+            width: 42%;
+        }
+        .col2 {
+            width: 10%;
+        }
+        .col3 {
+            width: 10%;
+        }
+        .col4 {
+            width: 15%;
+        }
+        .col5 {
+            display: none;
+        }
+        .col6 {
+            width: 23%;
+        }
+        .col7 {
+            display: none;
+        }
+        .col8 {
+            display: none;
+        }
     }
 
 </style>
