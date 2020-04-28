@@ -1,0 +1,44 @@
+body {
+    color: #e2e2e2 !important;
+}
+
+#content {
+    background-color: #212020;
+}
+
+.bg-dark {
+    background-color: #2b2a2a !important;
+}
+
+.card {
+    background-color: #2b2a2a;
+    border: 1px solid #2b2a2a;
+}
+
+.modal-content {
+    background-color: #2b2a2a;
+    border: 1px solid rgb(56, 56, 56);
+}
+
+.modal-header {
+    border-bottom: 1px solid #111010;
+}
+
+.close {
+    color: #e2e2e2 !important;
+    text-shadow: none;
+}
+
+.modal-backdrop {
+    background: none;
+}
+
+.bg-gradient-primary {
+    background-color: #949494;
+    background-image: none;
+    background-size: none;
+}
+
+a {
+    color: #2b2a2a !important;
+}

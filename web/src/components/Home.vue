@@ -17,11 +17,11 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
 
-                        <div class="col mr-2" v-if="item.error">
-                            <div class="h4 font-weight-bold text-primary mb-1">{{item.error}}</div>
+                        <div class="col mr-2" v-if="item.error" style="margin-right: 18px !important;">
+                            <div class="h4 font-weight-bold  mb-1">{{item.error}}</div>
                         </div>
 
-                        <div class="col mr-6" v-if="!item.error">
+                        <div class="col mr-6" v-if="!item.error" style="margin-right: 18px !important;">
                             <div class="h4 font-weight-bold text-dark mb-1">{{item.username}} <i :class="getPlatformIcon(item.platform)"></i></div>
                             <div class="h6 mb-0 font-weight-bold">Nível: {{item.level}}</div>
                             <div class="h6 mb-0 font-weight-bold">Partidas: {{item.gamesPlayed}}</div>
@@ -33,11 +33,11 @@
                             </div>
                         </div>
 
-                        <a href="#" class="btn-matches text-success" @click="showMatches(item)" data-toggle="tooltip" data-placement="left" title="Ultimas partidas" v-if="!item.error" v-bind:disabled="disableDetailsButton">
+                        <a href="#" class="btn-matches text-dark" @click="showMatches(item)" data-toggle="tooltip" data-placement="left" title="Ultimas partidas" v-if="!item.error" v-bind:disabled="disableDetailsButton">
                             <i class="fas fa-align-justify fa-sm"></i>
                         </a>
 
-                        <a href="#" class="btn-remove text-danger" @click="removePlayer(item)" data-toggle="tooltip" data-placement="left" title="Remover player" v-if="item.username">
+                        <a href="#" class="btn-remove text-dark" @click="removePlayer(item)" data-toggle="tooltip" data-placement="left" title="Remover player" v-if="item.username">
                             <i class="fas fa-trash fa-sm"></i>
                         </a>
 
@@ -68,7 +68,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title"></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-toggle="tooltip" data-placement="left" title="Fechar">
-                        <span aria-hidden="true">&times;</span>
+                        <i class="fas fa-times fa-sm"/>
                     </button>
                 </div>
 
@@ -111,7 +111,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title"><i class="fas fa-exclamation-triangle fa-sm"></i></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-toggle="tooltip" data-placement="left" title="Fechar">
-                        <span aria-hidden="true">&times;</span>
+                        <i class="fas fa-times fa-sm"/>
                     </button>
                 </div>
 
@@ -130,7 +130,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title">Últimas partidas</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-toggle="tooltip" data-placement="left" title="Fechar">
-                        <span aria-hidden="true">&times;</span>
+                        <i class="fas fa-times fa-sm"/>
                     </button>
                 </div>
 
@@ -414,7 +414,7 @@ export default {
         padding-top: 0px !important;
     }
     .border-left-primary {
-        border-left: 9px solid #4e73df !important;
+        border-left: 9px solid #ffffff !important;
     }
     .spinner-border-sm {
         width: 14px;
@@ -449,6 +449,12 @@ export default {
 
     tbody td, thead th {
         float: left;
+    }
+
+
+
+    .text-dark {
+        color:#949494 !important;
     }
 
 </style>
