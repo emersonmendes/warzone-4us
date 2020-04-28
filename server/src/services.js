@@ -10,10 +10,10 @@ const codBaseURL = "https://my.callofduty.com/api/papi-client";
 const profileURL = "https://profile.callofduty.com";
 const limitExceededPenaltyTimeout = 30000;
 let limitExceededPenalty = false;
-const blockedCredentials = [];
+let blockedCredentials = [];
 const cookies = {};
 
-const http = rateLimit(axios.create({ baseURL: codBaseURL }), { maxRequests: 4, perMilliseconds: 2000 });
+const http = rateLimit(axios.create({ baseURL: codBaseURL }), { maxRequests: 1, perMilliseconds: 2000 });
 
 async function getLoginToken(){
     const response = await http.get(`${profileURL}/cod/login`);
@@ -42,14 +42,14 @@ function getCredential(){
 
     let credential = credentials[Math.floor(Math.random() * credentials.length)];
 
-    if(blockedCredentials.includes(credential.user)){
-        logger.warn(`O usuário ${credential.user} está na lista de bloqueados, tentendo outro usuário.`);
+    if(blockedCredentials.length === credentials.length){
+        logger.warn(`Todos os usuários estão na lista de bloqueados! Limpando a lista.`);
+        blockedCredentials = [];
         return getCredential();
     }
 
-    if(blockedCredentials.length === credentials.length){
-        logger.warn(`Todos os usuários estão na lista de bloqueados limpando a lista.`);
-        blockedCredentials = [];
+    if(blockedCredentials.includes(credential.user)){
+        logger.warn(`O usuário ${credential.user} está na lista de bloqueados, tentendo outro usuário.`);
         return getCredential();
     }
 
@@ -84,12 +84,18 @@ async function doLogin(){
         },
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Cookie': `new_SiteId=cod; check=true; XSRF-TOKEN=${token}; `
+            'Cookie': `new_SiteId=cod; check=true; Referer=https://profile.callofduty.com/cod/login?redirectUrl=https://www.callofduty.com/; XSRF-TOKEN=${token}; `
         }
     };
 
     const response = await doPostRequest(options);
     const setCookie = response.headers['set-cookie'];
+
+    if(!setCookie){
+        blockedCredentials.push(credential.user);
+        throw new Error(`Falha no login para o usuário ${credential.user}`);
+    }
+
     const ssoCookie = cookie.parse(setCookie.filter(x => x.includes("ACT_SSO_COOKIE"))[0])['ACT_SSO_COOKIE'];
 
     const result = {
