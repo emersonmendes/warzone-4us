@@ -8,9 +8,10 @@ const rateLimit = require('axios-rate-limit');
 
 const codBaseURL = "https://my.callofduty.com/api/papi-client";
 const profileURL = "https://profile.callofduty.com";
-const limitExceededPenaltyTimeout = 120000;
-let tokensCookie = '';
+const limitExceededPenaltyTimeout = 30000;
 let limitExceededPenalty = false;
+const blockedCredentials = [];
+const cookies = {};
 
 const http = rateLimit(axios.create({ baseURL: codBaseURL }), { maxRequests: 4, perMilliseconds: 2000 });
 
@@ -31,16 +32,44 @@ function doPostRequest(options){
     });
 }
 
+function getCredential(){
+
+    if(!process.env.COD_CREDENTIALS){
+        throw new Error("Variáveis de ambiente 'COD_CREDENTIALS' de login não foram setadas!");
+    }
+
+    const credentials = JSON.parse(process.env.COD_CREDENTIALS);
+
+    let credential = credentials[Math.floor(Math.random() * credentials.length)];
+
+    if(blockedCredentials.includes(credential.user)){
+        logger.warn(`O usuário ${credential.user} está na lista de bloqueados, tentendo outro usuário.`);
+        return getCredential();
+    }
+
+    if(blockedCredentials.length === credentials.length){
+        logger.warn(`Todos os usuários estão na lista de bloqueados limpando a lista.`);
+        blockedCredentials = [];
+        return getCredential();
+    }
+
+    return credential;
+
+}
+
 async function doLogin(){
 
-    logger.info('Efetuando login api cod.');
+    const credential = getCredential();
 
-    const user = process.env.COD_USER;
-    const pass = process.env.COD_PASS;
-
-    if(!user || !pass){
-        throw new Error("Variáveis de ambiente 'COD_USER' e 'COD_PASS' de login não foram setadas!");
+    if(cookies[credential.user]){
+        logger.info(`Utilizando cookie do user: ${credential.user}.`);
+        return {
+            cookie: cookies[credential.user],
+            user: credential.user
+        }
     }
+
+    logger.info(`Efetuando login api cod login user: ${credential.user}.`);
 
     const token = await getLoginToken();
 
@@ -48,8 +77,8 @@ async function doLogin(){
         url: `${profileURL}/do_login`,
         method: 'POST',
         form: {
-            'username': user,
-            'password': pass,
+            'username': credential.user,
+            'password': credential.pass,
             'remember_me': 'true',
             '_csrf': token
         },
@@ -60,10 +89,17 @@ async function doLogin(){
     };
 
     const response = await doPostRequest(options);
-    const cookies = response.headers['set-cookie'];
-    const ssoCookie = cookie.parse(cookies.filter(x => x.includes("ACT_SSO_COOKIE"))[0])['ACT_SSO_COOKIE'];
+    const setCookie = response.headers['set-cookie'];
+    const ssoCookie = cookie.parse(setCookie.filter(x => x.includes("ACT_SSO_COOKIE"))[0])['ACT_SSO_COOKIE'];
 
-    return `ACT_SSO_COOKIE=${ssoCookie}; `
+    const result = {
+        cookie: `ACT_SSO_COOKIE=${ssoCookie}; `,
+        user: credential.user
+    };
+
+    cookies[credential.user] = result.cookie;
+
+    return result;
 
 }
 
@@ -114,11 +150,9 @@ async function getLastMatches(platform, player, cbSuccess, cbError){
 
     try {
 
-        if(!tokensCookie){
-            tokensCookie = await doLogin();
-        }
+        const result = await doLogin();
 
-        const response = await http.get(url, { headers: { 'Cookie': tokensCookie } });
+        const response = await http.get(url, { headers: { 'Cookie': result.cookie } });
 
         if('success' === response.data.status){
             cbSuccess(parseMatchesData(response.data.data.matches));
@@ -146,31 +180,32 @@ async function getStats(data, cbSuccess, cbError){
     try {
 
         let result = [];
+        let user;
 
         if(!data || data.length === 0){
             cbSuccess([]);
         }
 
-        if(!tokensCookie){
-            tokensCookie = await doLogin();
-        }
+        const loginResult = await doLogin();
+        user = loginResult.user;
 
         for(const d of data){
 
             const url = `/stats/cod/v1/title/mw/platform/${d.platform}/gamer/${d.player.replace("#","%")}/profile/type/wz`;
 
             logger.info(`Efetuando requisição getstats. for player: ${d.player}`);
-            const response = await http.get(url, { headers: { 'Cookie': tokensCookie } });
+            const response = await http.get(url, { headers: { 'Cookie': loginResult.cookie } });
 
             if(response.data.status === 'error' && response.data.data.message.includes('not authenticated')){
-                tokensCookie = "";
                 break;
             }
 
             if(response.data.status === 'error' && response.data.data.message.includes('limit exceeded')){
                 result.push({ error: limitExceededMsg });
-                limitExceededPenalty = true;
                 logger.warn(`Foi penalizado em ${limitExceededPenaltyTimeout / 1000} segundos por limite excedido de requisição na api do cod.`);
+                limitExceededPenalty = true;
+                blockedCredentials.push(user);
+                logger.warn(`O usuário ${user} está na lista de bloqueados por 'limit exceeded'`);
                 setTimeout(() => limitExceededPenalty = false, limitExceededPenaltyTimeout);
                 break;
             }
