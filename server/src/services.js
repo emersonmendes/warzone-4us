@@ -152,14 +152,11 @@ function parseMatchesData(data){
 
 async function getLastMatches(platform, player, cbSuccess, cbError){
 
-    logger.info('chamando getLastMatches.');
-
     const url = `/crm/cod/v2/title/mw/platform/${platform}/gamer/${player}/matches/wz/start/0/end/0/details`;
 
     try {
 
         const result = await doLogin();
-
         const response = await http.get(url, { headers: { 'Cookie': result.cookie } });
 
         if('success' === response.data.status){
@@ -171,6 +168,51 @@ async function getLastMatches(platform, player, cbSuccess, cbError){
     } catch(err){
         logger.error(err);
         cbError();
+    }
+
+}
+
+async function getStatsRequest(reqData, loginResult, result){
+
+    const url = `/stats/cod/v1/title/mw/platform/${reqData.platform}/gamer/${reqData.player.replace("#","%")}/profile/type/wz`;
+
+    const response = await http.get(url, { headers: { 'Cookie': loginResult.cookie } });
+    const user = loginResult.user;
+
+    if(response.data.status === 'error' && response.data.data.message.includes('not authenticated')){
+        logger.error(`Nãoautenticado para o user: ${user}.`);
+        return;
+    }
+
+    if(response.data.status === 'error' && response.data.data.message.includes('limit exceeded')){
+        result.push({ error: limitExceededMsg });
+        logger.warn(`Foi penalizado em ${limitExceededPenaltyTimeout / 1000} segundos por limite excedido de requisição na api do cod.`);
+        limitExceededPenalty = true;
+        blockedCredentials.push(user);
+        logger.warn(`O usuário ${user} está na lista de bloqueados por 'limit exceeded'`);
+        setTimeout(() => limitExceededPenalty = false, limitExceededPenaltyTimeout);
+        return;
+    }
+
+    if(response.data.status === 'success' && response.data.data.lifetime.mode.br_all){
+        const data = response.data.data;
+        const properties = data.lifetime.mode.br.properties;
+        result.push({
+            username: data.username,
+            wins: properties.wins,
+            level: data.level,
+            kills: properties.kills,
+            deaths: properties.deaths,
+            balance: properties.kills - properties.deaths,
+            gamesPlayed: properties.gamesPlayed,
+            kdRatio: properties.kdRatio,
+            platform: data.platform
+        });
+    } else {
+        result.push({
+            username: reqData.player,
+            error: `Usuário ${reqData.player} não encontrado para a plataforma ${reqData.platform}.`
+        });
     }
 
 }
@@ -188,57 +230,15 @@ async function getStats(data, cbSuccess, cbError){
     try {
 
         let result = [];
-        let user;
 
         if(!data || data.length === 0){
             cbSuccess([]);
         }
 
         const loginResult = await doLogin();
-        user = loginResult.user;
 
         for(const d of data){
-
-            const url = `/stats/cod/v1/title/mw/platform/${d.platform}/gamer/${d.player.replace("#","%")}/profile/type/wz`;
-
-            logger.info(`Efetuando requisição getstats. for player: ${d.player}`);
-            const response = await http.get(url, { headers: { 'Cookie': loginResult.cookie } });
-
-            if(response.data.status === 'error' && response.data.data.message.includes('not authenticated')){
-                break;
-            }
-
-            if(response.data.status === 'error' && response.data.data.message.includes('limit exceeded')){
-                result.push({ error: limitExceededMsg });
-                logger.warn(`Foi penalizado em ${limitExceededPenaltyTimeout / 1000} segundos por limite excedido de requisição na api do cod.`);
-                limitExceededPenalty = true;
-                blockedCredentials.push(user);
-                logger.warn(`O usuário ${user} está na lista de bloqueados por 'limit exceeded'`);
-                setTimeout(() => limitExceededPenalty = false, limitExceededPenaltyTimeout);
-                break;
-            }
-
-            if(response.data.status === 'success' && response.data.data.lifetime.mode.br_all){
-                const data = response.data.data;
-                const properties = data.lifetime.mode.br.properties;
-                result.push({
-                    username: data.username,
-                    wins: properties.wins,
-                    level: data.level,
-                    kills: properties.kills,
-                    deaths: properties.deaths,
-                    balance: properties.kills - properties.deaths,
-                    gamesPlayed: properties.gamesPlayed,
-                    kdRatio: properties.kdRatio,
-                    platform: data.platform
-                });
-            } else {
-                result.push({
-                    username: d.player,
-                    error: `Usuário ${d.player} não encontrado para a plataforma ${d.platform}.`
-                });
-            }
-
+            await getStatsRequest(d, loginResult, result);
         }
 
         cbSuccess(result);
