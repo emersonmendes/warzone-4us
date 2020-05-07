@@ -4,6 +4,7 @@ const logger = require('./logger');
 const request = require('request');
 const cookie = require('cookie');
 const axios = require('axios');
+const querystring = require('querystring');
 const rateLimit = require('axios-rate-limit');
 
 const codBaseURL = "https://my.callofduty.com/api/papi-client";
@@ -152,7 +153,7 @@ function parseMatchesData(data){
 
 async function getLastMatches(platform, player, cbSuccess, cbError){
 
-    const url = `/crm/cod/v2/title/mw/platform/${platform}/gamer/${player}/matches/wz/start/0/end/0/details`;
+    const url = `/crm/cod/v2/title/mw/platform/${platform}/gamer/${querystring.escape(player)}/matches/wz/start/0/end/0/details`;
 
     try {
 
@@ -174,7 +175,7 @@ async function getLastMatches(platform, player, cbSuccess, cbError){
 
 async function getStatsRequest(reqData, loginResult, result){
 
-    const url = `/stats/cod/v1/title/mw/platform/${reqData.platform}/gamer/${reqData.player.replace("#","%")}/profile/type/wz`;
+    const url = `/stats/cod/v1/title/mw/platform/${reqData.platform}/gamer/${querystring.escape(reqData.player)}/profile/type/wz`;
 
     const response = await http.get(url, { headers: { 'Cookie': loginResult.cookie } });
     const user = loginResult.user;
