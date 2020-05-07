@@ -1,5 +1,11 @@
 body {
     color: #e2e2e2 !important;
+    overflow-y: hidden !important;
+    overflow-x: hidden !important;
+}
+
+::-webkit-scrollbar {
+    display: none;
 }
 
 #content {

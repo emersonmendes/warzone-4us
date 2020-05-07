@@ -403,6 +403,12 @@ export default {
         }
     }
 
+    @media (max-width: 990px) {
+        .modal-dialog {
+            max-width: 90% !important;
+        }
+    }
+
     .modal-header{
         padding: 5px 16px;
     }
@@ -443,7 +449,7 @@ export default {
 
     table > thead > tr {
         font-size: 13px;
-        padding-right: 15px;
+        padding-right: 0px;
     }
 
     thead, tbody, tr, td, th {
@@ -497,10 +503,34 @@ export default {
         width: 25%;
     }
 
-    @media (max-width: 576px) {
-        table > thead > tr {
-            padding-right: 0px;
+    @media (max-width: 900px) {
+        .col1 {
+            width: 20%;
         }
+        .col2 {
+            width: 7%;
+        }
+        .col3 {
+            width: 7%;
+        }
+        .col4 {
+            width: 10%;
+        }
+        .col5 {
+            display: none;
+        }
+        .col6 {
+            width: 12%;
+        }
+        .col7 {
+            width: 44%;
+        }
+        .col8 {
+            display: none;
+        }
+    }
+
+    @media (max-width: 575px) {
         .col1 {
             width: 42%;
         }

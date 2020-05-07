@@ -6273,16 +6273,6 @@ button.bg-light:focus {
   background-color: #d4daed !important;
 }
 
-.bg-dark {
-  background-color: #5a5c69 !important;
-}
-
-a.bg-dark:hover, a.bg-dark:focus,
-button.bg-dark:hover,
-button.bg-dark:focus {
-  background-color: #42444e !important;
-}
-
 .bg-white {
   background-color: #fff !important;
 }
@@ -7337,19 +7327,19 @@ button.bg-dark:focus {
 }
 
 .shadow-sm {
-  box-shadow: 0 0.125rem 0.25rem 0 rgba(58, 59, 69, 0.2) !important;
+    box-shadow: none !important;
 }
 
 .shadow {
-  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+    box-shadow: none !important;
 }
 
 .shadow-lg {
-  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+    box-shadow: none !important;
 }
 
 .shadow-none {
-  box-shadow: none !important;
+    box-shadow: none !important;
 }
 
 .w-25 {
