@@ -25,6 +25,11 @@
                             <div class="h4 font-weight-bold text-dark mb-1">{{item.username}} <i :class="getPlatformIcon(item.platform)"></i></div>
                             <div class="h6 mb-0 font-weight-bold">Nível: {{item.level}}</div>
                             <div class="h6 mb-0 font-weight-bold">Partidas: {{item.gamesPlayed}}</div>
+                            <div class="h6 mb-0 font-weight-bold">Tempo de jogo: {{getFormattedTimePlayed(item.timePlayed)}}</div>
+
+                            <div class="h6 mb-0 font-weight-bold">Vitórias: {{item.wins}}</div>
+                            <div class="h6 mb-0 font-weight-bold">Top 5: {{item.topFive}}</div>
+                            <div class="h6 mb-0 font-weight-bold">Top 10: {{item.topTen}}</div>
                             <div class="h6 mb-0 font-weight-bold">Vitórias: {{item.wins}}</div>
                             <div class="h6 mb-0 font-weight-bold">Kills: {{item.kills}}</div>
                             <div class="h6 mb-0 font-weight-bold">Mortes: {{item.deaths}}</div>
@@ -142,8 +147,10 @@
                                 <th scope="col" class="col2">Pos</th>
                                 <th scope="col" class="col3">Kills</th>
                                 <th scope="col" class="col4">Mortes</th>
+                                <!--
                                 <th scope="col" class="col5">HS</th>
                                 <th scope="col" class="col6">Players</th>
+                                -->
                                 <th scope="col" class="col7">Time</th>
                                 <th scope="col" class="col8">Time Vencedor</th>
                             </tr>
@@ -154,8 +161,10 @@
                                 <td class="col2">{{match.teamPlacement}}</td>
                                 <td class="col3">{{match.kills}}</td>
                                 <td class="col4">{{match.deaths}}</td>
+                                <!--
                                 <td class="col5">{{match.headshots}}</td>
                                 <td class="col6">{{match.playerCount}}</td>
+                                -->
                                 <td class="col7">
                                     <div v-for="p in match.ourTeam" v-bind:key="p">{{p}}</div>
                                 </td>
@@ -178,6 +187,8 @@
 <script>
 
 /* global $ */
+
+import moment from 'moment';
 
 export default {
     name: 'Home',
@@ -346,6 +357,12 @@ export default {
             }
             this.matches = await this.getMatches(item.platform, item.username);
             $('#modalMatches').modal('show');
+        },
+
+        getFormattedTimePlayed(seconds) {
+            const ms = seconds * 1000;
+            const duration = new moment.duration(ms);
+            return `${duration.days()}d ${duration.hours()}h ${duration.minutes()}m`;
         }
 
     },
@@ -479,48 +496,48 @@ export default {
     /** colunas tabela */
 
     .col1 {
-        width: 15%;
+        width: 16%;
     }
     .col2 {
-        width: 5%;
+        width: 8%;
     }
     .col3 {
-        width: 5%;
+        width: 8%;
     }
     .col4 {
-        width: 5%;
+        width: 8%;
     }
     .col5 {
-        width: 5%;
+        display: none;
     }
     .col6 {
-        width: 15%;
+       display: none;
     }
     .col7 {
-        width: 25%;
+        width: 30%;
     }
     .col8 {
-        width: 25%;
+        width: 30%;
     }
 
     @media (max-width: 900px) {
         .col1 {
-            width: 20%;
+            width: 22%;
         }
         .col2 {
-            width: 7%;
+            width: 10%;
         }
         .col3 {
-            width: 7%;
+            width: 10%;
         }
         .col4 {
-            width: 10%;
+            width: 14%;
         }
         .col5 {
             display: none;
         }
         .col6 {
-            width: 12%;
+            display: none;
         }
         .col7 {
             width: 44%;
@@ -532,22 +549,22 @@ export default {
 
     @media (max-width: 575px) {
         .col1 {
-            width: 42%;
+            width: 47%;
         }
         .col2 {
-            width: 10%;
+            width: 15%;
         }
         .col3 {
-            width: 10%;
+            width: 15%;
         }
         .col4 {
-            width: 15%;
+            width: 23%;
         }
         .col5 {
             display: none;
         }
         .col6 {
-            width: 23%;
+            display: none;
         }
         .col7 {
             display: none;

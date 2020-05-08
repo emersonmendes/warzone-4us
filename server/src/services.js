@@ -207,7 +207,10 @@ async function getStatsRequest(reqData, loginResult, result){
             balance: properties.kills - properties.deaths,
             gamesPlayed: properties.gamesPlayed,
             kdRatio: properties.kdRatio,
-            platform: data.platform
+            platform: data.platform,
+            timePlayed: properties.timePlayed,
+            topFive: properties.topFive,
+            topTen: properties.topTen
         });
     } else {
         result.push({
