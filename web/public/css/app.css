@@ -52,3 +52,8 @@ a {
 .table {
     color: #e2e2e2;
 }
+
+.container-fluid {
+    overflow-y: auto;
+    height: calc(100vh - 160px);
+}

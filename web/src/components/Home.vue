@@ -413,6 +413,7 @@ export default {
         padding: 23px;
     }
 
+
     @media (max-width: 576px) {
         .loading-text {
             font-size: 12px;
