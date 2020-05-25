@@ -415,7 +415,7 @@ export default {
 
         addPlayerToLastPlayersSearched(item){
             if(!this.lastSearchedPlayers.filter( p => p.player === item.player).length){
-                this.lastSearchedPlayers.push(player);
+                this.lastSearchedPlayers.push(item.player);
                 localStorage.setItem("lastSearchedPlayers", JSON.stringify(this.lastSearchedPlayers));
             }
         },
