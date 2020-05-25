@@ -296,6 +296,14 @@ export default {
         async updatePlayersData(){
             this.data = await this.getStats(this.players);
             this.resetTime();
+            this.data.forEach( d => {
+                if(d.username){
+                    this.addPlayerToLastPlayersSearched({
+                        player: d.username,
+                        platform: d.platform
+                    });
+                }
+            });
         },
 
         addPlayer(){
@@ -325,8 +333,6 @@ export default {
             this.players.push(playerObj);
 
             this.setPlayersToStorage(this.players);
-
-            this.addPlayerToLastPlayersSearched(playerObj);
 
             this.updatePlayersData();
 
@@ -407,8 +413,8 @@ export default {
             return `${duration.days()}d ${duration.hours()}h ${duration.minutes()}m`;
         },
 
-        addPlayerToLastPlayersSearched(player){
-            if(!this.lastSearchedPlayers.filter( p => p.player === this.player).length){
+        addPlayerToLastPlayersSearched(item){
+            if(!this.lastSearchedPlayers.filter( p => p.player === item.player).length){
                 this.lastSearchedPlayers.push(player);
                 localStorage.setItem("lastSearchedPlayers", JSON.stringify(this.lastSearchedPlayers));
             }
