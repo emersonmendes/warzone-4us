@@ -391,6 +391,9 @@ export default {
         },
 
         getPlatformName(platform){
+            if(!platform){
+                return "";
+            }
             return this.platformData[platform].name;
         },
 
@@ -414,7 +417,7 @@ export default {
         },
 
         addPlayerToLastPlayersSearched(item){
-            if(!this.lastSearchedPlayers.filter( p => p.player === item.player).length){
+            if(item.player && item.platform && !this.lastSearchedPlayers.filter( p => p.player === item.player).length){
                 this.lastSearchedPlayers.push(item);
                 localStorage.setItem("lastSearchedPlayers", JSON.stringify(this.lastSearchedPlayers));
             }

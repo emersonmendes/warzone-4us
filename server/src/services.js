@@ -183,7 +183,15 @@ async function getStatsRequest(reqData, loginResult, result){
     const user = loginResult.user;
 
     if(response.data.status === 'error' && response.data.data.message.includes('not authenticated')){
-        logger.error(`Nãoautenticado para o user: ${user}.`);
+        logger.error(`Não autenticado para o user: ${user}.`);
+        return;
+    }
+
+    if(response.data.status === 'error' && response.data.data.message.includes('Could not load data from datastore')){
+        result.push({
+            username: reqData.player,
+            error: `Não conseguiu encontrar dados no momento para o usuário '${reqData.player}' e plataforma '${reqData.platform}'. Aguarde alguns instantes.`
+        });
         return;
     }
 
@@ -220,7 +228,7 @@ async function getStatsRequest(reqData, loginResult, result){
     } else {
         result.push({
             username: reqData.player,
-            error: `Usuário ${reqData.player} não encontrado para a plataforma ${reqData.platform}.`
+            error: `Usuário '${reqData.player}' não encontrado para a plataforma '${reqData.platform}'.`
         });
     }
 
@@ -263,3 +271,4 @@ module.exports = {
     getStats: getStats,
     getLastMatches: getLastMatches
 }
+
