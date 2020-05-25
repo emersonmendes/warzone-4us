@@ -43,7 +43,7 @@ function getCredential(){
 
     let credential = credentials[Math.floor(Math.random() * credentials.length)];
 
-    if(blockedCredentials.length === credentials.length){
+    if(blockedCredentials.length >= credentials.length){
         logger.warn(`Todos os usuários estão na lista de bloqueados! Limpando a lista.`);
         blockedCredentials = [];
         return getCredential();
@@ -93,7 +93,9 @@ async function doLogin(){
     const setCookie = response.headers['set-cookie'];
 
     if(!setCookie){
-        blockedCredentials.push(credential.user);
+        if(!blockedCredentials.includes(credential.user)){
+            lockedCredentials.push(credential.user);
+        }
         throw new Error(`Falha no login para o usuário ${credential.user}`);
     }
 
@@ -186,10 +188,13 @@ async function getStatsRequest(reqData, loginResult, result){
     }
 
     if(response.data.status === 'error' && response.data.data.message.includes('limit exceeded')){
+        const limitExceededMsg = 'Aguarde um momento. Houve muitas requisições simultâneas.';
         result.push({ error: limitExceededMsg });
         logger.warn(`Foi penalizado em ${limitExceededPenaltyTimeout / 1000} segundos por limite excedido de requisição na api do cod.`);
         limitExceededPenalty = true;
-        blockedCredentials.push(user);
+        if(!blockedCredentials.includes(user)){
+            blockedCredentials.push(user);
+        }
         logger.warn(`O usuário ${user} está na lista de bloqueados por 'limit exceeded'`);
         setTimeout(() => limitExceededPenalty = false, limitExceededPenaltyTimeout);
         return;

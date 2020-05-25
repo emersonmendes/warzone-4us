@@ -54,6 +54,10 @@
 
     </div>
 
+    <button class="btn btn-warning last-searched-players-btn" type="button" data-toggle="modal" data-target=".modal-last-searched-players">
+        <i class="fas fa-history fa-sm" data-toggle="tooltip" data-placement="left" title="Últimos pesquisados"></i>
+    </button>
+
     <button class="btn btn-primary add-btn" type="button" data-toggle="modal" data-target=".modal-add-player">
         <i class="fas fa-plus fa-sm" data-toggle="tooltip" data-placement="left" title="Adicionar player"></i>
     </button>
@@ -88,11 +92,11 @@
                         <div class="form-group">
                             <label >Plataforma:</label>
                             <select class="form-control" id="platform" v-bind:value="platform" v-on:change="platform = $event.target.value">
-                                <option value="psn">PSN</option>
-                                <option value="battle">Battle</option>
-                                <option value="steam">Steam</option>
-                                <option value="xbl">XBL</option>
-                                <option value="uno">Activision</option>
+                                <option value="psn">{{getPlatformName("psn")}}</option>
+                                <option value="battle">{{getPlatformName("battle")}}</option>
+                                <option value="steam">{{getPlatformName("steam")}}</option>
+                                <option value="xbl">{{getPlatformName("xbl")}}</option>
+                                <option value="uno">{{getPlatformName("uno")}}</option>
                             </select>
                         </div>
 
@@ -179,6 +183,40 @@
         </div>
     </div>
 
+    <div id="modalLastSearchedPlayers" class="modal fade modal-last-searched-players" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Últimos pesquisados
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-toggle="tooltip" data-placement="left" title="Fechar">
+                        <i class="fas fa-times fa-sm"/>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <table class="table table-striped table-sm">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col" style="min-width: 65%;">Username</th>
+                                <th scope="col" style="min-width: 35%;">Plataforma</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in lastSearchedPlayers" v-bind:key="item.player" style="font-size: 13px;">
+                                <td style="min-width: 65%;">{{item.player}}</td>
+                                <td style="min-width: 35%;">{{getPlatformName(item.platform)}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
   </div>
 
 </template>
@@ -197,13 +235,15 @@ export default {
         player: null,
         players: [],
         loading: true,
-        platformIcons: [],
-        updateTimeout: 30,
-        updateSecond: 0,
+        platformData: [],
         message: '',
         disableUpdateButton: false,
         disableDetailsButton: false,
-        matches: []
+        matches: [],
+        lastSearchedPlayers: [],
+        updateSecond: 0,
+        UPDATE_TIMEOUT: 30,
+        MAX_ALLOWED_PLAYES: 4
     }),
     methods: {
 
@@ -255,7 +295,6 @@ export default {
 
         async updatePlayersData(){
             this.data = await this.getStats(this.players);
-            this.player = null;
             this.resetTime();
         },
 
@@ -266,8 +305,8 @@ export default {
                 return;
             }
 
-            if(this.players.length >= 4){
-                this.showMessage("Máximo de players permitidos: 4");
+            if(this.players.length >= this.MAX_ALLOWED_PLAYES){
+                this.showMessage(`Máximo de players permitidos: ${this.MAX_ALLOWED_PLAYES}`);
                 return;
             }
 
@@ -278,12 +317,16 @@ export default {
 
             this.clearPulling();
 
-            this.players.push({
+            const playerObj = {
                 player: this.player,
                 platform: this.platform
-            });
+            };
+
+            this.players.push(playerObj);
 
             this.setPlayersToStorage(this.players);
+
+            this.addPlayerToLastPlayersSearched(playerObj);
 
             this.updatePlayersData();
 
@@ -315,7 +358,7 @@ export default {
         },
 
         resetTime(){
-            this.updateSecond = this.updateTimeout;
+            this.updateSecond = this.UPDATE_TIMEOUT;
         },
 
         clearPulling() {
@@ -338,11 +381,11 @@ export default {
         },
 
         getPlatformIcon(platform){
-            const iconClass = this.platformIcons[platform];
-            if(!iconClass){
-                return this.platformIcons["default"];
-            }
-            return iconClass;
+            return this.platformData[platform].icon;
+        },
+
+        getPlatformName(platform){
+            return this.platformData[platform].name;
         },
 
         showMessage(_message){
@@ -362,19 +405,36 @@ export default {
             const ms = seconds * 1000;
             const duration = new moment.duration(ms);
             return `${duration.days()}d ${duration.hours()}h ${duration.minutes()}m`;
+        },
+
+        addPlayerToLastPlayersSearched(player){
+            if(!this.lastSearchedPlayers.filter( p => p.player === this.player).length){
+                this.lastSearchedPlayers.push(player);
+                localStorage.setItem("lastSearchedPlayers", JSON.stringify(this.lastSearchedPlayers));
+            }
+        },
+
+        getLastPlayersSearchedFromStorage(){
+            if(localStorage.lastSearchedPlayers){
+                return JSON.parse(localStorage.getItem("lastSearchedPlayers"));
+            }
+            return [];
         }
 
     },
 
     async created(){
-        this.platformIcons = {
-            psn: "fab fa-playstation",
-            xbl: "fab fa-xbox",
-            default: "fa fa-desktop"
+        this.platformData = {
+            psn: { name: "PSN", icon: "fab fa-playstation" },
+            xbl: { name: "XBox", icon: "fab fa-xbox" },
+            steam: { name: "Steam", icon: "fa fa-desktop" },
+            battle: { name: "Battle.net", icon: "fa fa-desktop" },
+            uno: { name: "Activision", icon: "fa fa-desktop" }
         };
         this.players = this.getPlayersFromStorage();
         this.data = await this.getStats(this.players);
         this.setPulling();
+        this.lastSearchedPlayers = this.getLastPlayersSearchedFromStorage();
     },
 
     watch: {
@@ -397,15 +457,20 @@ export default {
         position: fixed;
         bottom: 0;
         right: 0;
-        margin: 65px 25px;
+        margin: 50px 25px;
     }
     .update-btn {
         position: fixed;
         bottom: 0;
         right: 0;
-        margin: 65px 75px;
+        margin: 50px 75px;
     }
-
+    .last-searched-players-btn {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        margin: 50px 127px;
+    }
     .loading {
         position: absolute;
         top: 0;
