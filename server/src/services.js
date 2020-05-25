@@ -94,7 +94,7 @@ async function doLogin(){
 
     if(!setCookie){
         if(!blockedCredentials.includes(credential.user)){
-            lockedCredentials.push(credential.user);
+            blockedCredentials.push(credential.user);
         }
         throw new Error(`Falha no login para o usuário ${credential.user}`);
     }
