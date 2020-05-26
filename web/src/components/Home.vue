@@ -200,14 +200,18 @@
                     <table class="table table-striped table-sm">
                         <thead class="thead-dark">
                             <tr>
-                                <th scope="col" style="min-width: 65%;">Username</th>
+                                <th scope="col" style="min-width: 55%;">Username</th>
                                 <th scope="col" style="min-width: 35%;">Plataforma</th>
+                                <th scope="col" style="min-width: 10%;color: #5a5c69;">+</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="item in lastSearchedPlayers" v-bind:key="item.player" style="font-size: 13px;">
-                                <td style="min-width: 65%;">{{item.player}}</td>
+                                <td style="min-width: 55%;">{{item.player}}</td>
                                 <td style="min-width: 35%;">{{getPlatformName(item.platform)}}</td>
+                                <td style="min-width: 10%;">
+                                    <i type="button" class="fas fa-plus fa-sm" title="Adicionar player" @click="addPlayer(item)" data-dismiss="modal"></i>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -306,7 +310,12 @@ export default {
             });
         },
 
-        addPlayer(){
+        addPlayer(item){
+
+            if(item){
+                this.player = item.player;
+                this.platform = item.platform;
+            }
 
             if(!this.player){
                 this.showMessage("Digite o usuário da plataforma selecionada");
