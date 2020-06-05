@@ -260,7 +260,7 @@ export default {
 
         getDateTime(milli){
             const date = new Date(milli);
-            return `${this.addZero(date.getDate())}/${this.addZero(date.getMonth())}/${date.getFullYear()} ${this.addZero(date.getHours())}:${this.addZero(date.getMinutes())}`;
+            return `${this.addZero(date.getDate())}/${this.addZero(date.getMonth() + 1)}/${date.getFullYear()} ${this.addZero(date.getHours())}:${this.addZero(date.getMinutes())}`;
         },
 
         async getStats(players){
