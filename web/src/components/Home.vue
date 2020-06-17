@@ -32,9 +32,10 @@
                             <div class="h6 mb-0 font-weight-bold">Top 10: {{item.topTen}}</div>
                             <div class="h6 mb-0 font-weight-bold">Kills: {{item.kills}}</div>
                             <div class="h6 mb-0 font-weight-bold">Mortes: {{item.deaths}}</div>
+                            <div class="h6 mb-0 font-weight-bold">K/D: {{Math.round(item.kdRatio * 100) / 100}}</div>
                             <div class="h6 mb-0 font-weight-bold">
-                                Balanço: <span class="badge badge-pill" v-bind:class="{ 'badge-danger':(item.balance < 0), 'badge-success':(item.balance >= 0)}">{{item.balance}} ( {{Math.round(item.kdRatio * 100) / 100}} ) </span>
-                            </div>
+                                Balanço: <span class="badge badge-pill" v-bind:class="{ 'badge-danger':(item.balance < 0), 'badge-success':(item.balance >= 0)}">{{item.balance}}</span>
+                            </div>     
                         </div>
 
                         <a href="#" class="btn-matches text-dark" @click="showMatches(item)" data-toggle="tooltip" data-placement="left" title="Ultimas partidas" v-if="!item.error" v-bind:disabled="disableDetailsButton">
