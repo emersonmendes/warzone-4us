@@ -29,7 +29,6 @@
 
                             <div class="h6 mb-0 font-weight-bold">Vitórias: {{item.wins}}</div>
                             <div class="h6 mb-0 font-weight-bold">Top 5: {{item.topFive}}</div>
-                            <div class="h6 mb-0 font-weight-bold">Top 10: {{item.topTen}}</div>
                             <div class="h6 mb-0 font-weight-bold">Kills: {{item.kills}}</div>
                             <div class="h6 mb-0 font-weight-bold">Mortes: {{item.deaths}}</div>
                             <div class="h6 mb-0 font-weight-bold">K/D: {{Math.round(item.kdRatio * 100) / 100}}</div>
