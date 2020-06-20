@@ -120,6 +120,8 @@ function parseMatchesData(data){
 
         const rankedTeams = item.rankedTeams;
 
+        console.log(item);
+
         let ourTeam;
         let champTeam;
 

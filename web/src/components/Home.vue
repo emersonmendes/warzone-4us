@@ -23,7 +23,9 @@
 
                         <div class="col mr-6" v-if="!item.error" style="margin-right: 18px !important;">
                             <div class="h4 font-weight-bold text-dark mb-1">{{item.username}} <i :class="getPlatformIcon(item.platform)"></i></div>
+                            <!--
                             <div class="h6 mb-0 font-weight-bold">Nível: {{item.level}}</div>
+                            -->
                             <div class="h6 mb-0 font-weight-bold">Partidas: {{item.gamesPlayed}}</div>
                             <div class="h6 mb-0 font-weight-bold">Tempo de jogo: {{getFormattedTimePlayed(item.timePlayed)}}</div>
 
@@ -37,9 +39,11 @@
                             </div>
                         </div>
 
+                        <!-- REMOVIDO POR ENQUANTO
                         <a href="#" class="btn-matches text-dark" @click="showMatches(item)" data-toggle="tooltip" data-placement="left" title="Ultimas partidas" v-if="!item.error" v-bind:disabled="disableDetailsButton">
                             <i class="fas fa-align-justify fa-sm"></i>
                         </a>
+                        -->
 
                         <a href="#" class="btn-remove text-dark" @click="removePlayer(item)" data-toggle="tooltip" data-placement="left" title="Remover player" v-if="item.username">
                             <i class="fas fa-trash fa-sm"></i>
