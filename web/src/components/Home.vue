@@ -23,12 +23,8 @@
 
                         <div class="col mr-6" v-if="!item.error" style="margin-right: 18px !important;">
                             <div class="h4 font-weight-bold text-dark mb-1">{{item.username}} <i :class="getPlatformIcon(item.platform)"></i></div>
-                            <!--
-                            <div class="h6 mb-0 font-weight-bold">Nível: {{item.level}}</div>
-                            -->
                             <div class="h6 mb-0 font-weight-bold">Partidas: {{item.gamesPlayed}}</div>
                             <div class="h6 mb-0 font-weight-bold">Tempo de jogo: {{getFormattedTimePlayed(item.timePlayed)}}</div>
-
                             <div class="h6 mb-0 font-weight-bold">Vitórias: {{item.wins}}</div>
                             <div class="h6 mb-0 font-weight-bold">Top 5: {{item.topFive}}</div>
                             <div class="h6 mb-0 font-weight-bold">Kills: {{item.kills}}</div>
@@ -36,7 +32,7 @@
                             <div class="h6 mb-0 font-weight-bold">K/D: {{Math.round(item.kdRatio * 100) / 100}}</div>
                             <div class="h6 mb-0 font-weight-bold">
                                 Balanço: <span class="badge badge-pill" v-bind:class="{ 'badge-danger':(item.balance < 0), 'badge-success':(item.balance >= 0)}">{{item.balance}}</span>
-                            </div>     
+                            </div>
                         </div>
 
                         <!-- REMOVIDO POR ENQUANTO
@@ -154,10 +150,6 @@
                                 <th scope="col" class="col2">Pos</th>
                                 <th scope="col" class="col3">Kills</th>
                                 <th scope="col" class="col4">Mortes</th>
-                                <!--
-                                <th scope="col" class="col5">HS</th>
-                                <th scope="col" class="col6">Players</th>
-                                -->
                                 <th scope="col" class="col7">Time</th>
                                 <th scope="col" class="col8">Time Vencedor</th>
                             </tr>
@@ -168,10 +160,6 @@
                                 <td class="col2">{{match.teamPlacement}}</td>
                                 <td class="col3">{{match.kills}}</td>
                                 <td class="col4">{{match.deaths}}</td>
-                                <!--
-                                <td class="col5">{{match.headshots}}</td>
-                                <td class="col6">{{match.playerCount}}</td>
-                                -->
                                 <td class="col7">
                                     <div v-for="p in match.ourTeam" v-bind:key="p">{{p}}</div>
                                 </td>
@@ -204,17 +192,21 @@
                     <table class="table table-striped table-sm">
                         <thead class="thead-dark">
                             <tr>
-                                <th scope="col" style="min-width: 55%;">Username</th>
-                                <th scope="col" style="min-width: 35%;">Plataforma</th>
-                                <th scope="col" style="min-width: 10%;color: #5a5c69;">+</th>
+                                <th scope="col" style="min-width: 80%;">Username</th>
+                                <!-- <th scope="col" style="min-width: 25%;">Plataforma</th> -->
+                                <th scope="col" style="min-width: 10%;color: #5a5c69;">z</th>
+                                <th scope="col" style="min-width: 10%;color: #5a5c69;">z</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="item in lastSearchedPlayers" v-bind:key="item.player" style="font-size: 13px;">
-                                <td style="min-width: 55%;">{{item.player}}</td>
-                                <td style="min-width: 35%;">{{getPlatformName(item.platform)}}</td>
+                                <td style="min-width: 80%;">{{item.player}}</td>
+                                <!-- <td style="min-width: 25%;">{{getPlatformName(item.platform)}}</td> -->
                                 <td style="min-width: 10%;">
                                     <i type="button" class="fas fa-plus fa-sm" title="Adicionar player" @click="addPlayer(item)" data-dismiss="modal"></i>
+                                </td>
+                                <td style="min-width: 10%;">
+                                    <i type="button" class="fas fa-trash fa-sm" title="Remover player" @click="removePlayerFromLastPlayersSearched(item)" data-dismiss="modal"></i>
                                 </td>
                             </tr>
                         </tbody>
@@ -434,6 +426,10 @@ export default {
                 this.lastSearchedPlayers.push(item);
                 localStorage.setItem("lastSearchedPlayers", JSON.stringify(this.lastSearchedPlayers));
             }
+        },
+
+        removePlayerFromLastPlayersSearched(item){
+            this.lastSearchedPlayers = this.lastSearchedPlayers.filter( p => p.player !== item.player);
         },
 
         getLastPlayersSearchedFromStorage(){
