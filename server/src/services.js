@@ -113,46 +113,26 @@ async function doLogin(){
 }
 
 function parseMatchesData(data){
-
     const matches = [];
-
     for(const item of data){
-
-        const rankedTeams = item.rankedTeams;
-
-        console.log(item);
-
-        let ourTeam;
-        let champTeam;
-
-        ourTeam = rankedTeams.filter(r => r.players.map( p => p.team).includes(item.player.team));
-        champTeam = rankedTeams.filter(r => r.placement === 1.0);
-
-        const ourTeamResult = (ourTeam && ourTeam.length) ? ourTeam[0].players.map(item => `${item.platform}> ${item.username} (${item.playerStats.kills})`) : ['?'];
-        const champTeamResult = (champTeam && champTeam.length) ? champTeam[0].players.map(item => `${item.platform}> ${item.username} (${item.playerStats.kills})`) : ['?'];
-
-        const playerStats = item.playerStats;
-
-        matches.push({
-            matchID: item.matchID,
-            playerCount: item.playerCount,
-            kills: playerStats.kills,
-            headshots: playerStats.headshots,
-            deaths: playerStats.deaths,
-            gulagDeaths: playerStats.gulagDeaths,
-            damageDone: playerStats.damageDone,
-            damageTaken: playerStats.damageTaken,
-            teamPlacement: (ourTeam && ourTeam.length) ? ourTeam[0].placement : '?',
-            ourTeam: ourTeamResult,
-            champTeam: champTeamResult,
-            utcStartDate: (item.utcStartSeconds * 1000),
-            utcEndDate: (item.utcEndSeconds * 1000)
-        });
-
+        if(!item.mode.includes('plnbld')){ // REMOVENDO SAQUE
+            matches.push({
+                username: item.player.username,
+                teamPlacement: item.playerStats.teamPlacement,
+                mode: item.mode,
+                duration: item.duration,
+                matchID: item.matchID,
+                playerCount: item.playerCount,
+                kills: item.playerStats.kills,
+                deaths: item.playerStats.deaths,
+                teamCount: item.teamCount,
+                privateMatch: item.privateMatch,
+                utcStartDate: (item.utcStartSeconds * 1000),
+                utcEndDate: (item.utcEndSeconds * 1000)
+            });
+        }
     }
-
     return matches;
-
 }
 
 async function getLastMatches(platform, player, cbSuccess, cbError){
