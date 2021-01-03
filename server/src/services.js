@@ -115,7 +115,7 @@ async function doLogin(){
 function parseMatchesData(data){
     const matches = [];
     for(const item of data){
-        if(!item.mode.includes('plnbld')){ // REMOVENDO SAQUE
+        if(!item.mode.includes('plnbld') && !item.mode.includes('mini_royale')){ // REMOVENDO SAQUE e Rebirth
             matches.push({
                 username: item.player.username,
                 team: item.player.team,
