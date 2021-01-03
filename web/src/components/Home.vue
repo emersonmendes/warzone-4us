@@ -153,6 +153,7 @@
                                 <th scope="col" class="col7">Jogadores</th>
                                 <th scope="col" class="col8">Times</th>
                                 <th scope="col" class="col9">Duração</th>
+                                <th scope="col" class="col10">Acão</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -166,6 +167,12 @@
                                 <td class="col7">{{match.playerCount}}</td>
                                 <td class="col8">{{match.teamCount}}</td>
                                 <td class="col9">{{getFormattedMatchDuration(match.duration)}}</td>
+                                <td class="col10">
+                                    <a href="#" v-bind:disabled="disableMatchDetailsButton" data-toggle="tooltip" data-placement="left" title="Detalhes partida" @click="showMatchDetails(match)">
+                                        <i class="fas fa-plus fa-sm" style="color:white"></i>
+                                    </a>
+                                </td>
+
                             </tr>
                         </tbody>
                     </table>
@@ -217,6 +224,42 @@
         </div>
     </div>
 
+    <div id="modalMatchDetails" class="modal fade modal-match-details" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Detalhes da partida
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-toggle="tooltip" data-placement="left" title="Fechar">
+                        <i class="fas fa-times fa-sm"/>
+                    </button>
+                </div>
+
+                <div class="modal-body" v-if="matchDetails.ourTeam">
+
+                    <b>Time:</b>
+                    <div  v-for="item in matchDetails.ourTeam.players" v-bind:key="item.username">
+                        {{item.username}} <b>Kills:</b> {{item.kills}} <b>Mortes:</b> {{item.deaths}}
+                    </div>
+                    <br />
+                    <b>Jogador que mais matou:</b>
+                    <div>{{matchDetails.mostKills.username}}</div>
+                    <br />
+                    <b>Jogador que mais morreu:</b>
+                    <div>{{matchDetails.mostDeaths.username}}</div>
+                    <br />
+                    <b>Times por posição na partida:</b>
+                    <div class="teamsPerPosition" v-for="(item, key) in matchDetails.teams" v-bind:key="item.username">
+                       {{key}} - {{item.join(" , ")}}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
   </div>
 
 </template>
@@ -239,12 +282,14 @@ export default {
         message: '',
         disableUpdateButton: false,
         disableDetailsButton: false,
+        disableMatchDetailsButton: false,
         matches: [],
         match: {},
         lastSearchedPlayers: [],
         updateSecond: 0,
         UPDATE_TIMEOUT: 30,
-        MAX_ALLOWED_PLAYES: 4
+        MAX_ALLOWED_PLAYES: 4,
+        matchDetails: {}
     }),
     methods: {
 
@@ -451,6 +496,20 @@ export default {
                 return JSON.parse(localStorage.getItem("lastSearchedPlayers"));
             }
             return [];
+        },
+
+        async showMatchDetails(match){
+            this.disableMatchDetailsButton = true;
+            const response = await this.$http.get('/matchDetails', {
+                params: {
+                    matchID: match.matchID,
+                    username: match.username,
+                    team: match.team
+                }
+            });
+            this.matchDetails = response.data;
+            $('#modalMatchDetails').modal('show');
+            this.disableMatchDetailsButton = false;
         }
 
     },
@@ -557,6 +616,10 @@ export default {
         margin-bottom: 4px;
     }
 
+    .teamsPerPosition {
+        font-size: 14px;
+    }
+
     table {
         width: 100%;
     }
@@ -605,19 +668,22 @@ export default {
         width: 10%;
     }
     .col5 {
-        width: 10%;
+        width: 9%;
     }
     .col6 {
-        width: 10%;
+        width: 9%;
     }
     .col7 {
-        width: 10%;
+        width: 9%;
     }
     .col8 {
-        width: 10%;
+        width: 9%;
     }
     .col9 {
-        width: 10%;
+        width: 9%;
+    }
+    .col10 {
+        width: 5%;
     }
 
     @media (max-width: 900px) {
@@ -648,6 +714,9 @@ export default {
         .col9 {
             width: 15%;
         }
+        .col10 {
+            display: none;
+        }
     }
 
     @media (max-width: 575px) {
@@ -676,6 +745,9 @@ export default {
             display: none;
         }
         .col9 {
+            display: none;
+        }
+        .col10 {
             display: none;
         }
     }

@@ -118,6 +118,7 @@ function parseMatchesData(data){
         if(!item.mode.includes('plnbld')){ // REMOVENDO SAQUE
             matches.push({
                 username: item.player.username,
+                team: item.player.team,
                 teamPlacement: item.playerStats.teamPlacement,
                 mode: item.mode,
                 duration: item.duration,
@@ -216,6 +217,78 @@ async function getStatsRequest(reqData, loginResult, result){
 
 }
 
+async function getMatchDetails(data, cbSuccess, cbError){
+
+    const url = `/crm/cod/v2/title/mw/platform/psn/fullMatch/wz/${data.matchID}/en`;
+
+    try {
+
+        const response = await http.get(url);
+
+        const result = {
+            ourTeam: {
+                players: []
+            },
+            teams : {},
+            mostKills: {
+                count: 0
+            },
+            mostDeaths: {
+                count: 0
+            }
+        };
+
+        for (const item of response.data.data.allPlayers){
+
+            const teamPlacement = Number(item.playerStats.teamPlacement);
+            const teamName = item.player.team;
+            const clanTag = item.player.clantag ? item.player.clantag.replace('^3','[').replace('^7',']') : '';
+            const username = `${clanTag} ${item.player.username}`;
+            const kills = Number(item.playerStats.kills);
+            const deaths = Number(item.playerStats.deaths);
+
+            if(data.team === teamName){
+                result.ourTeam.players.push({
+                    username: username,
+                    kills: kills,
+                    deaths: deaths,
+                });
+            }
+
+            if(kills > result.mostKills.count){
+                result.mostKills = {
+                    username: `${username} (${kills}/${deaths})`,
+                    count: kills
+                }
+            }
+
+            if(kills > result.mostDeaths.count){
+                result.mostDeaths = {
+                    username: `${username} (${kills}/${deaths})`,
+                    count: deaths
+                }
+            }
+
+            let team = result.teams[teamPlacement];
+            if(!team) team = [];
+            team.push(`${username} (${kills}/${deaths})`);
+            result.teams[teamPlacement] = team;
+
+        }
+
+        if('success' === response.data.status){
+            cbSuccess(result);
+        } else {
+            cbSuccess([]);
+        }
+
+    } catch(err){
+        logger.error(err);
+        cbError();
+    }
+
+}
+
 async function getStats(data, cbSuccess, cbError){
 
     const limitExceededMsg = 'Aguarde um momento. Houve muitas requisições simultâneas.';
@@ -251,6 +324,7 @@ async function getStats(data, cbSuccess, cbError){
 
 module.exports = {
     getStats: getStats,
-    getLastMatches: getLastMatches
+    getLastMatches: getLastMatches,
+    getMatchDetails: getMatchDetails
 }
 

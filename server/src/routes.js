@@ -29,4 +29,16 @@ routes.route('/matches').get((req, res) => {
     });
 });
 
+routes.route('/matchDetails').get((req, res) => {
+    services.getMatchDetails({
+        matchID: req.query.matchID,
+        username: req.query.username,
+        team: req.query.team
+    }, (result) => {
+        res.status(200).json(result);
+    }, () => {
+        res.status(400).json({ msg : "deu erro!"});
+    });
+});
+
 module.exports = routes;
