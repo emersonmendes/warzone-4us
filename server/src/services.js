@@ -120,12 +120,12 @@ function parseMatchesData(data){
                 username: item.player.username,
                 team: item.player.team,
                 teamPlacement: item.playerStats.teamPlacement,
+                kills: item.playerStats.kills,
+                deaths: item.playerStats.deaths,
                 mode: item.mode,
                 duration: item.duration,
                 matchID: item.matchID,
                 playerCount: item.playerCount,
-                kills: item.playerStats.kills,
-                deaths: item.playerStats.deaths,
                 teamCount: item.teamCount,
                 privateMatch: item.privateMatch,
                 utcStartDate: (item.utcStartSeconds * 1000),
@@ -196,14 +196,14 @@ async function getStatsRequest(reqData, loginResult, result){
         const properties = data.lifetime.mode.br.properties;
         result.push({
             username: data.username,
-            wins: properties.wins,
             level: data.level,
+            platform: data.platform,
+            wins: properties.wins,
             kills: properties.kills,
             deaths: properties.deaths,
             balance: properties.kills - properties.deaths,
             gamesPlayed: properties.gamesPlayed,
             kdRatio: properties.kdRatio,
-            platform: data.platform,
             timePlayed: properties.timePlayed,
             topFive: properties.topFive,
             topTen: properties.topTen
@@ -262,7 +262,7 @@ async function getMatchDetails(data, cbSuccess, cbError){
                 }
             }
 
-            if(kills > result.mostDeaths.count){
+            if(deaths > result.mostDeaths.count){
                 result.mostDeaths = {
                     username: `${username} (${kills}/${deaths})`,
                     count: deaths
