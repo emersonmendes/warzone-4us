@@ -53,7 +53,7 @@ async function getLastMatches(platform, player, cbSuccess, cbError){
 
 async function getStatsRequest(reqData, result){
 
-    const url = `/warzone/standard/profile/${reqData.platform}/${reqData.player}`;
+    const url = `/warzone/standard/profile/${reqData.platform}/${querystring.escape(reqData.player)}`;
 
     const response = await http.get(url, { headers: { 'Cookie': "authority=api.tracker.gg; origin=https://cod.tracker.gg; referer=https://cod.tracker.gg/;" } });
 
