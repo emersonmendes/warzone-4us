@@ -157,7 +157,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="match in matches" v-bind:key="match.matchID" style="font-size: 13px;">
+                            <tr v-for="(match, index) in matches" v-bind:key="index" style="font-size: 13px;">
                                 <td class="col1">{{getDateTime(match.timestamp)}}</td>
                                 <td class="col2">{{match.mode}}</td>
                                 <td class="col3">Não</td>

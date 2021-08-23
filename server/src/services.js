@@ -23,7 +23,6 @@ function parseMatchesData(data){
                 deaths: item.segments[0].stats.deaths.value,
                 mode: item.metadata.modeName,
                 duration: item.metadata.duration.value,
-                // matchID: item.matchID,
                 playerCount: item.metadata.playerCount,
                 teamCount: item.metadata.teamCount,
                 timestamp: item.metadata.timestamp
