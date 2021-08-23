@@ -13,7 +13,7 @@ Stats page for Call of Duty Warzone.
 
 cd server
 npm install
-export COD_CREDENTIALS='[{"user":"cod.user@mail.com", "pass":"1234"}]' && npm start
+npm start
 
 ```
 
@@ -23,7 +23,7 @@ export COD_CREDENTIALS='[{"user":"cod.user@mail.com", "pass":"1234"}]' && npm st
 
 cd server
 npm install
-export COD_CREDENTIALS='[{"user":"cod.user@mail.com", "pass":"1234"}]' && npm run start-debug
+npm run start-debug
 
 ```
 
@@ -32,6 +32,7 @@ export COD_CREDENTIALS='[{"user":"cod.user@mail.com", "pass":"1234"}]' && npm ru
 ```bash
 
 cd web
+npm install
 npm start
 
 ```

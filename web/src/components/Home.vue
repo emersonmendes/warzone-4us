@@ -94,7 +94,7 @@
                                 <option value="battle">{{getPlatformName("battle")}}</option>
                                 <option value="steam">{{getPlatformName("steam")}}</option>
                                 <option value="xbl">{{getPlatformName("xbl")}}</option>
-                                <option value="uno">{{getPlatformName("uno")}}</option>
+                                <option value="atvi">{{getPlatformName("atvi")}}</option>
                             </select>
                         </div>
 
@@ -158,9 +158,9 @@
                         </thead>
                         <tbody>
                             <tr v-for="match in matches" v-bind:key="match.matchID" style="font-size: 13px;">
-                                <td class="col1">{{getDateTime(match.utcStartDate)}}</td>
-                                <td class="col2">{{getMode(match.mode)}}</td>
-                                <td class="col3">{{match.privateMatch ? 'Sim' : 'Não'}}</td>
+                                <td class="col1">{{getDateTime(match.timestamp)}}</td>
+                                <td class="col2">{{match.mode}}</td>
+                                <td class="col3">Não</td>
                                 <td class="col4">{{ match.mode.includes('plnbld') ? '?' : match.teamPlacement}}</td>
                                 <td class="col5"><b>{{match.kills}}</b></td>
                                 <td class="col6">{{match.deaths}}</td>
@@ -293,18 +293,6 @@ export default {
     }),
     methods: {
 
-        getMode(mode){
-
-            if(mode === 'br_dmz_plnbld') return 'Saque';
-            if(mode === 'br_brduos') return 'Dupla';
-            if(mode === 'br_brsolo') return 'Solo';
-            if(mode === 'br_brtrios') return 'Trio';
-            if(mode === 'br_brquads') return 'Quarteto';
-
-            return '';
-
-        },
-
         addZero(i) {
             if (i < 10) {
                 i = "0" + i;
@@ -312,8 +300,8 @@ export default {
             return i;
         },
 
-        getDateTime(milli){
-            const date = new Date(milli);
+        getDateTime(timestamp){
+            const date = new Date(timestamp);
             return `${this.addZero(date.getDate())}/${this.addZero(date.getMonth() + 1)}/${date.getFullYear()} ${this.addZero(date.getHours())}:${this.addZero(date.getMinutes())}`;
         },
 
@@ -339,7 +327,7 @@ export default {
             const response = await this.$http.get('/matches', {
                 params: { platform, username }
             });
-            this.disableDetailsButton = false;
+            this.disableDetailsButton = true;
             return response.data;
         },
 
@@ -520,7 +508,7 @@ export default {
             xbl: { name: "XBox", icon: "fab fa-xbox" },
             steam: { name: "Steam", icon: "fa fa-desktop" },
             battle: { name: "Battle.net", icon: "fa fa-desktop" },
-            uno: { name: "Activision", icon: "fa fa-desktop" }
+            atvi: { name: "Activision", icon: "fa fa-desktop" }
         };
         this.players = this.getPlayersFromStorage();
         this.data = await this.getStats(this.players);

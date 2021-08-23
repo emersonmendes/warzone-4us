@@ -7,129 +7,26 @@ const axios = require('axios');
 const querystring = require('querystring');
 const rateLimit = require('axios-rate-limit');
 
-const codBaseURL = "https://my.callofduty.com/api/papi-client";
-const profileURL = "https://profile.callofduty.com";
-const limitExceededPenaltyTimeout = 30000;
-let limitExceededPenalty = false;
-let blockedCredentials = [];
-const cookies = {};
+const codBaseURL = "https://api.tracker.gg/api/v2";
 
-const http = rateLimit(axios.create({ baseURL: codBaseURL }), { maxRequests: 1, perMilliseconds: 2000 });
-
-async function getLoginToken(){
-    const response = await http.get(`${profileURL}/cod/login`);
-    return cookie.parse(response.headers["set-cookie"][0])['XSRF-TOKEN'];
-}
-
-function doPostRequest(options){
-    return new Promise(function(resolve, reject){
-        request(options, (error, response) => {
-            if(error){
-                reject(error);
-            } else {
-                resolve(response);
-            }
-        });
-    });
-}
-
-function getCredential(){
-
-    if(!process.env.COD_CREDENTIALS){
-        throw new Error("Variáveis de ambiente 'COD_CREDENTIALS' de login não foram setadas!");
-    }
-
-    const credentials = JSON.parse(process.env.COD_CREDENTIALS);
-
-    let credential = credentials[Math.floor(Math.random() * credentials.length)];
-
-    if(blockedCredentials.length >= credentials.length){
-        logger.warn(`Todos os usuários estão na lista de bloqueados! Limpando a lista.`);
-        blockedCredentials = [];
-        return getCredential();
-    }
-
-    if(blockedCredentials.includes(credential.user)){
-        logger.warn(`O usuário ${credential.user} está na lista de bloqueados, tentendo outro usuário.`);
-        return getCredential();
-    }
-
-    return credential;
-
-}
-
-async function doLogin(){
-
-    const credential = getCredential();
-
-    if(cookies[credential.user]){
-        logger.info(`Utilizando cookie do user: ${credential.user}.`);
-        return {
-            cookie: cookies[credential.user],
-            user: credential.user
-        }
-    }
-
-    logger.info(`Efetuando login api cod login user: ${credential.user}.`);
-
-    const token = await getLoginToken();
-
-    const options = {
-        url: `${profileURL}/do_login`,
-        method: 'POST',
-        form: {
-            'username': credential.user,
-            'password': credential.pass,
-            'remember_me': 'true',
-            '_csrf': token
-        },
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Cookie': `new_SiteId=cod; check=true; Referer=https://profile.callofduty.com/cod/login?redirectUrl=https://www.callofduty.com/; XSRF-TOKEN=${token}; `
-        }
-    };
-
-    const response = await doPostRequest(options);
-    const setCookie = response.headers['set-cookie'];
-
-    if(!setCookie){
-        if(!blockedCredentials.includes(credential.user)){
-            blockedCredentials.push(credential.user);
-        }
-        throw new Error(`Falha no login para o usuário ${credential.user}`);
-    }
-
-    const ssoCookie = cookie.parse(setCookie.filter(x => x.includes("ACT_SSO_COOKIE"))[0])['ACT_SSO_COOKIE'];
-
-    const result = {
-        cookie: `ACT_SSO_COOKIE=${ssoCookie}; `,
-        user: credential.user
-    };
-
-    cookies[credential.user] = result.cookie;
-
-    return result;
-
-}
+const http = axios.create({ baseURL: codBaseURL });
 
 function parseMatchesData(data){
     const matches = [];
     for(const item of data){
-        if(!item.mode.includes('plnbld') && !item.mode.includes('mini_royale') && !item.mode.includes('rebirth')){ // REMOVENDO SAQUE e Rebirth
+        if(!item.attributes.modeId.includes('plnbld') && !item.attributes.modeId.includes('br_kingslayer_kingsltrios') && !item.attributes.modeId.includes('rebirth')){ // REMOVENDO SAQUE e Rebirth
             matches.push({
-                username: item.player.username,
-                team: item.player.team,
-                teamPlacement: item.playerStats.teamPlacement,
-                kills: item.playerStats.kills,
-                deaths: item.playerStats.deaths,
-                mode: item.mode,
-                duration: item.duration,
-                matchID: item.matchID,
-                playerCount: item.playerCount,
-                teamCount: item.teamCount,
-                privateMatch: item.privateMatch,
-                utcStartDate: (item.utcStartSeconds * 1000),
-                utcEndDate: (item.utcEndSeconds * 1000)
+                username: item.segments[0].metadata.platformUserHandle,
+                team: [],
+                teamPlacement: item.segments[0].stats.teamPlacement.value,
+                kills: item.segments[0].stats.kills.value,
+                deaths: item.segments[0].stats.deaths.value,
+                mode: item.metadata.modeName,
+                duration: item.metadata.duration.value,
+                // matchID: item.matchID,
+                playerCount: item.metadata.playerCount,
+                teamCount: item.metadata.teamCount,
+                timestamp: item.metadata.timestamp
             });
         }
     }
@@ -138,14 +35,13 @@ function parseMatchesData(data){
 
 async function getLastMatches(platform, player, cbSuccess, cbError){
 
-    const url = `/crm/cod/v2/title/mw/platform/${platform}/gamer/${querystring.escape(player)}/matches/wz/start/0/end/0/details`;
+    const url = `/warzone/standard/matches/${platform}/${querystring.escape(player)}?type=wz`;
 
     try {
 
-        const result = await doLogin();
-        const response = await http.get(url, { headers: { 'Cookie': result.cookie } });
+        const response = await http.get(url, { headers: { 'Cookie': "authority=api.tracker.gg; origin=https://cod.tracker.gg; referer=https://cod.tracker.gg/;" } });
 
-        if('success' === response.data.status){
+        if(200 === response.status){
             cbSuccess(parseMatchesData(response.data.data.matches));
         } else {
             cbSuccess([]);
@@ -158,56 +54,33 @@ async function getLastMatches(platform, player, cbSuccess, cbError){
 
 }
 
-async function getStatsRequest(reqData, loginResult, result){
+async function getStatsRequest(reqData, result){
 
-    const url = `/stats/cod/v1/title/mw/platform/${reqData.platform}/gamer/${querystring.escape(reqData.player)}/profile/type/wz`;
+    const url = `/warzone/standard/profile/${reqData.platform}/${reqData.player}`;
 
-    const response = await http.get(url, { headers: { 'Cookie': loginResult.cookie } });
-    const user = loginResult.user;
+    const response = await http.get(url, { headers: { 'Cookie': "authority=api.tracker.gg; origin=https://cod.tracker.gg; referer=https://cod.tracker.gg/;" } });
 
-    if(response.data.status === 'error' && response.data.data.message.includes('not authenticated')){
-        logger.error(`Não autenticado para o user: ${user}.`);
-        return;
-    }
+    if(response.status === 200){
 
-    if(response.data.status === 'error' && response.data.data.message.includes('Could not load data from datastore')){
-        result.push({
-            username: reqData.player,
-            error: `Não conseguiu encontrar dados no momento para o usuário '${reqData.player}' e plataforma '${reqData.platform}'. Aguarde alguns instantes.`
-        });
-        return;
-    }
-
-    if(response.data.status === 'error' && response.data.data.message.includes('limit exceeded')){
-        const limitExceededMsg = 'Aguarde um momento. Houve muitas requisições simultâneas.';
-        result.push({ error: limitExceededMsg });
-        logger.warn(`Foi penalizado em ${limitExceededPenaltyTimeout / 1000} segundos por limite excedido de requisição na api do cod.`);
-        limitExceededPenalty = true;
-        if(!blockedCredentials.includes(user)){
-            blockedCredentials.push(user);
-        }
-        logger.warn(`O usuário ${user} está na lista de bloqueados por 'limit exceeded'`);
-        setTimeout(() => limitExceededPenalty = false, limitExceededPenaltyTimeout);
-        return;
-    }
-
-    if(response.data.status === 'success' && response.data.data.lifetime.mode.br_all){
         const data = response.data.data;
-        const properties = data.lifetime.mode.br.properties;
+
+        const segments = data.segments[1];
+
         result.push({
-            username: data.username,
-            level: data.level,
-            platform: data.platform,
-            wins: properties.wins,
-            kills: properties.kills,
-            deaths: properties.deaths,
-            balance: properties.kills - properties.deaths,
-            gamesPlayed: properties.gamesPlayed,
-            kdRatio: properties.kdRatio,
-            timePlayed: properties.timePlayed,
-            topFive: properties.topFive,
-            topTen: properties.topTen
+            username: data.platformInfo.platformUserIdentifier,
+            platform: data.platformInfo.platformSlug,
+            level: 0,
+            wins: segments.stats.wins.value,
+            kills: segments.stats.kills.value,
+            deaths: segments.stats.deaths.value,
+            balance: (segments.stats.kills.value - segments.stats.deaths.value),
+            gamesPlayed: segments.stats.gamesPlayed.value,
+            kdRatio: segments.stats.kdRatio.value,
+            timePlayed: segments.stats.timePlayed.value,
+            topFive: segments.stats.top5.value,
+            topTen: segments.stats.top10.value
         });
+
     } else {
         result.push({
             username: reqData.player,
@@ -291,14 +164,6 @@ async function getMatchDetails(data, cbSuccess, cbError){
 
 async function getStats(data, cbSuccess, cbError){
 
-    const limitExceededMsg = 'Aguarde um momento. Houve muitas requisições simultâneas.';
-
-    if(limitExceededPenalty){
-        logger.warn(`Está na penalização por limite excedido de requisição na api do cod.`);
-        cbSuccess([{ error: limitExceededMsg }]);
-        return;
-    }
-
     try {
 
         let result = [];
@@ -307,10 +172,8 @@ async function getStats(data, cbSuccess, cbError){
             cbSuccess([]);
         }
 
-        const loginResult = await doLogin();
-
         for(const d of data){
-            await getStatsRequest(d, loginResult, result);
+            await getStatsRequest(d, result);
         }
 
         cbSuccess(result);
