@@ -2,10 +2,8 @@
 
 const logger = require('./logger');
 const request = require('request');
-const cookie = require('cookie');
 const axios = require('axios');
 const querystring = require('querystring');
-const rateLimit = require('axios-rate-limit');
 
 const codBaseURL = "https://api.tracker.gg/api/v2";
 
