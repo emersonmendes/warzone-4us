@@ -8,13 +8,32 @@ const codBaseURL = "https://api.tracker.gg/api/v2";
 
 const http = axios.create({ baseURL: codBaseURL });
 
-function parseMatchesData(data){
+const header = {
+    "Cookie": "authority=api.tracker.gg; origin=https://cod.tracker.gg; referer=https://cod.tracker.gg/;"
+};
+
+async function parseMatchesData(data){
     const matches = [];
     for(const item of data){
+
         const stats = item.segments[0].stats;
+        const metadata = item.segments[0].metadata;
+        const team = metadata.teammates || [];
+        const username = metadata.platformUserHandle;
+
+        team.push({
+            platformUserHandle: metadata.platformUserHandle,
+            clantag: metadata.clanTag,
+            stats: {
+                kills: stats.kills.value,
+                deaths: stats.deaths.value
+            }
+        });
+
         matches.push({
-            username: item.segments[0].metadata.platformUserHandle,
-            team: [],
+            matchId: item.attributes.id,
+            username: username,
+            team: team,
             teamPlacement: ((stats.teamPlacement && stats.teamPlacement.value) || (stats.placement && stats.placement.value)),
             kills: stats.kills.value,
             deaths: stats.deaths.value,
@@ -28,16 +47,36 @@ function parseMatchesData(data){
     return matches;
 }
 
+async function getMatchPlayers(matchId, cbSuccess, cbError){
+
+    const url = `/warzone/standard/matches/${matchId}`;
+
+    const response = await http.get(url, { headers: header });
+
+    try {
+        if(200 === response.status){
+            cbSuccess(response.data.data.segments);
+        }else {
+            cbSuccess([]);
+        }
+    } catch(err){
+        logger.error(err);
+        cbError();
+    }
+
+}
+
 async function getLastMatches(platform, player, cbSuccess, cbError){
 
     const url = `/warzone/standard/matches/${platform}/${querystring.escape(player)}?type=wz`;
 
     try {
 
-        const response = await http.get(url, { headers: { 'Cookie': "authority=api.tracker.gg; origin=https://cod.tracker.gg; referer=https://cod.tracker.gg/;" } });
+        const response = await http.get(url, { headers: header });
 
         if(200 === response.status){
-            cbSuccess(parseMatchesData(response.data.data.matches));
+            const matchesData = await parseMatchesData(response.data.data.matches);
+            cbSuccess(matchesData);
         } else {
             cbSuccess([]);
         }
@@ -53,7 +92,7 @@ async function getStatsRequest(reqData, result){
 
     const url = `/warzone/standard/profile/${reqData.platform}/${querystring.escape(reqData.player)}`;
 
-    const response = await http.get(url, { headers: { 'Cookie': "authority=api.tracker.gg; origin=https://cod.tracker.gg; referer=https://cod.tracker.gg/;" } });
+    const response = await http.get(url, { headers: header });
 
     if(response.status === 200){
 
@@ -64,7 +103,6 @@ async function getStatsRequest(reqData, result){
         result.push({
             username: data.platformInfo.platformUserIdentifier,
             platform: data.platformInfo.platformSlug,
-            level: 0,
             wins: segments.stats.wins.value,
             kills: segments.stats.kills.value,
             deaths: segments.stats.deaths.value,
@@ -81,78 +119,6 @@ async function getStatsRequest(reqData, result){
             username: reqData.player,
             error: `Usuário '${reqData.player}' não encontrado para a plataforma '${reqData.platform}'.`
         });
-    }
-
-}
-
-async function getMatchDetails(data, cbSuccess, cbError){
-
-    const url = `/crm/cod/v2/title/mw/platform/psn/fullMatch/wz/${data.matchID}/en`;
-
-    try {
-
-        const response = await http.get(url);
-
-        const result = {
-            ourTeam: {
-                players: []
-            },
-            teams : {},
-            mostKills: {
-                count: 0
-            },
-            mostDeaths: {
-                count: 0
-            }
-        };
-
-        for (const item of response.data.data.allPlayers){
-
-            const teamPlacement = Number(item.playerStats.teamPlacement);
-            const teamName = item.player.team;
-            const clanTag = item.player.clantag ? item.player.clantag.replace('^3','[').replace('^7',']') : '';
-            const username = `${clanTag} ${item.player.username}`;
-            const kills = Number(item.playerStats.kills);
-            const deaths = Number(item.playerStats.deaths);
-
-            if(data.team === teamName){
-                result.ourTeam.players.push({
-                    username: username,
-                    kills: kills,
-                    deaths: deaths,
-                });
-            }
-
-            if(kills > result.mostKills.count){
-                result.mostKills = {
-                    username: `${username} (${kills}/${deaths})`,
-                    count: kills
-                }
-            }
-
-            if(deaths > result.mostDeaths.count){
-                result.mostDeaths = {
-                    username: `${username} (${kills}/${deaths})`,
-                    count: deaths
-                }
-            }
-
-            let team = result.teams[teamPlacement];
-            if(!team) team = [];
-            team.push(`${username} (${kills}/${deaths})`);
-            result.teams[teamPlacement] = team;
-
-        }
-
-        if('success' === response.data.status){
-            cbSuccess(result);
-        } else {
-            cbSuccess([]);
-        }
-
-    } catch(err){
-        logger.error(err);
-        cbError();
     }
 
 }
@@ -183,6 +149,6 @@ async function getStats(data, cbSuccess, cbError){
 module.exports = {
     getStats: getStats,
     getLastMatches: getLastMatches,
-    getMatchDetails: getMatchDetails
+    getMatchPlayers: getMatchPlayers
 }
 

@@ -239,21 +239,19 @@
                 </div>
 
                 <div class="modal-body" v-if="matchDetails.ourTeam">
-
                     <b>Time:</b>
                     <div  v-for="item in matchDetails.ourTeam.players" v-bind:key="item.username">
-                        {{item.username}} <b>Kills:</b> {{item.kills}} <b>Mortes:</b> {{item.deaths}}
+                        {{item.clantag && item.clantag.replace("^3","[").replace("^7","]")}}{{item.platformUserHandle}} <b>Kills:</b> {{item.stats.kills}} <b>Mortes:</b> {{item.stats.deaths}}
                     </div>
                     <br />
-                    <b>Jogador que mais matou:</b>
-                    <div>{{matchDetails.mostKills.username}}</div>
-                    <br />
-                    <b>Jogador que mais morreu:</b>
-                    <div>{{matchDetails.mostDeaths.username}}</div>
-                    <br />
                     <b>Times por posição na partida:</b>
-                    <div class="teamsPerPosition" v-for="(item, key) in matchDetails.teams" v-bind:key="item.username">
-                       {{key}} - {{item.join(" , ")}}
+
+                    <div class="teamsPerPosition" v-for="(item, index) in matchDetails.teams" v-bind:key="index">
+
+                        {{item.metadata.placement.displayValue}} -
+                        [{{item.metadata.clanTag}}]{{item.metadata.platformUserHandle}}
+                        <b>Kills:</b> {{item.stats.kills.value}} <b>Mortes:</b> {{item.stats.deaths.value}}
+
                     </div>
                 </div>
 
@@ -484,18 +482,36 @@ export default {
             return [];
         },
 
-        async showMatchDetails(match){
-            this.disableMatchDetailsButton = true;
-            const response = await this.$http.get('/matchDetails', {
-                params: {
-                    matchID: match.matchID,
-                    username: match.username,
-                    team: match.team
-                }
+        async getMatchePlayers(matchId){
+            const response = await this.$http.get('/matchPlayers', {
+                params: { matchId }
             });
-            this.matchDetails = response.data;
+            return response;
+        },
+
+        async showMatchDetails(match){
+
+            const response = await this.getMatchePlayers(match.matchId);
+
+            this.disableMatchDetailsButton = true;
+
+            this.matchDetails = {
+                ourTeam: {
+                    players: match.team
+                },
+                mostKills: {
+                    username: ""
+                },
+                mostDeaths:{
+                    username: ""
+                },
+                teams: response.data || [],
+            };
+
             $('#modalMatchDetails').modal('show');
+
             this.disableMatchDetailsButton = false;
+
         }
 
     },
