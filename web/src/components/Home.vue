@@ -22,7 +22,10 @@
                         </div>
 
                         <div class="col mr-6" v-if="!item.error" style="margin-right: 18px !important;">
-                            <div class="h4 font-weight-bold text-dark mb-1">{{item.username}} <i :class="getPlatformIcon(item.platform)"></i></div>
+                            <div class="h4 font-weight-bold text-dark mb-1 card-username">
+                                <i :class="getPlatformIcon(item.platform)"></i>
+                                <span class="">{{item.username}}</span>
+                            </div>
                             <div class="h6 mb-0 font-weight-bold">Partidas: {{item.gamesPlayed}}</div>
                             <div class="h6 mb-0 font-weight-bold">Tempo de jogo: {{getFormattedTimePlayed(item.timePlayed)}}</div>
                             <div class="h6 mb-0 font-weight-bold">Vitórias: {{item.wins}}</div>
@@ -35,7 +38,7 @@
                             </div>
                         </div>
 
-                        <a href="#" class="btn-matches text-dark" @click="showMatches(item)" data-toggle="tooltip" data-placement="left" title="Ultimas partidas" v-if="!item.error" v-bind:disabled="disableDetailsButton">
+                        <a href="#" class="btn-matches text-dark" @click="showMatches(item)" data-toggle="tooltip" data-placement="left" title="Ultimas partidas" v-if="!item.error">
                             <i class="fas fa-align-justify fa-sm"></i>
                         </a>
 
@@ -146,28 +149,26 @@
                             <tr>
                                 <th scope="col" class="col1">Data</th>
                                 <th scope="col" class="col2">Modo</th>
-                                <th scope="col" class="col3">Privada</th>
-                                <th scope="col" class="col4">Pos</th>
-                                <th scope="col" class="col5"><b>Kills</b></th>
-                                <th scope="col" class="col6">Mortes</th>
-                                <th scope="col" class="col7">Jogadores</th>
-                                <th scope="col" class="col8">Times</th>
-                                <th scope="col" class="col9">Duração</th>
-                                <th scope="col" class="col10">Acão</th>
+                                <th scope="col" class="col3">Pos</th>
+                                <th scope="col" class="col4"><b>Kills</b></th>
+                                <th scope="col" class="col5">Mortes</th>
+                                <th scope="col" class="col6">Jogadores</th>
+                                <th scope="col" class="col7">Times</th>
+                                <th scope="col" class="col8">Duração</th>
+                                <th scope="col" class="col9">Acão</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(match, index) in matches" v-bind:key="index" style="font-size: 13px;">
                                 <td class="col1">{{getDateTime(match.timestamp)}}</td>
                                 <td class="col2">{{match.mode}}</td>
-                                <td class="col3">Não</td>
-                                <td class="col4">{{ match.mode.includes('plnbld') ? '?' : match.teamPlacement}}</td>
-                                <td class="col5"><b>{{match.kills}}</b></td>
-                                <td class="col6">{{match.deaths}}</td>
-                                <td class="col7">{{match.playerCount}}</td>
-                                <td class="col8">{{match.teamCount}}</td>
-                                <td class="col9">{{getFormattedMatchDuration(match.duration)}}</td>
-                                <td class="col10">
+                                <td class="col3">{{ match.teamPlacement || '?'}}</td>
+                                <td class="col4"><b>{{match.kills}}</b></td>
+                                <td class="col5">{{match.deaths}}</td>
+                                <td class="col6">{{match.playerCount}}</td>
+                                <td class="col7">{{match.teamCount}}</td>
+                                <td class="col8">{{getFormattedMatchDuration(match.duration)}}</td>
+                                <td class="col9">
                                     <a href="#" v-bind:disabled="disableMatchDetailsButton" data-toggle="tooltip" data-placement="left" title="Detalhes partida" @click="showMatchDetails(match)">
                                         <i class="fas fa-plus fa-sm" style="color:white"></i>
                                     </a>
@@ -445,9 +446,6 @@ export default {
         },
 
         async showMatches(item){
-            if(this.disableDetailsButton){
-                return;
-            }
             this.matches = await this.getMatches(item.platform, item.username);
             $('#modalMatches').modal('show');
         },
@@ -641,13 +639,17 @@ export default {
         color:#949494 !important;
     }
 
+    .card-username i {
+        padding-right: 6px;
+    }
+
     /** colunas tabela */
 
     .col1 {
-        width: 20%;
+        width: 15%;
     }
     .col2 {
-        width: 10%;
+        width: 15%;
     }
     .col3 {
         width: 10%;
@@ -656,21 +658,18 @@ export default {
         width: 10%;
     }
     .col5 {
-        width: 9%;
+        width: 10%;
     }
     .col6 {
-        width: 9%;
+        width: 10%;
     }
     .col7 {
-        width: 9%;
+        width: 10%;
     }
     .col8 {
-        width: 9%;
+        width: 15%;
     }
     .col9 {
-        width: 9%;
-    }
-    .col10 {
         width: 5%;
     }
 
@@ -679,13 +678,13 @@ export default {
             width: 20%;
         }
         .col2 {
-            width: 15%;
+            width: 17%;
         }
         .col3 {
             display: none;
         }
         .col4 {
-            width: 10%;
+            width: 8%;
         }
         .col5 {
             width: 10%;
@@ -697,19 +696,17 @@ export default {
             width: 10%;
         }
         .col8 {
-            width: 10%;
+            width: 17%;
         }
         .col9 {
-            width: 15%;
-        }
-        .col10 {
-            display: none;
+            width: 8%;
         }
     }
 
     @media (max-width: 575px) {
+
         .col1 {
-            width: 50%;
+            width: 43%;
         }
         .col2 {
             display: none;
@@ -718,13 +715,13 @@ export default {
             display: none;
         }
         .col4 {
-            width: 13%;
-        }
-        .col5 {
             width: 15%;
         }
+        .col5 {
+            width: 17%;
+        }
         .col6 {
-            width: 22%;
+            width: 25%;
         }
         .col7 {
             display: none;
@@ -735,9 +732,23 @@ export default {
         .col9 {
             display: none;
         }
-        .col10 {
-            display: none;
+
+        .card-username {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 225px;
+            font-size: 20px;
         }
+
+        .btn-matches {
+            margin: 15px 55px;
+        }
+
+        .btn-remove {
+            margin: 14px 20px;
+        }
+
     }
 
 </style>

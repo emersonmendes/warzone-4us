@@ -1,7 +1,6 @@
 'use strict';
 
 const logger = require('./logger');
-const request = require('request');
 const axios = require('axios');
 const querystring = require('querystring');
 
@@ -12,20 +11,19 @@ const http = axios.create({ baseURL: codBaseURL });
 function parseMatchesData(data){
     const matches = [];
     for(const item of data){
-        if(!item.attributes.modeId.includes('plnbld') && !item.attributes.modeId.includes('br_kingslayer_kingsltrios') && !item.attributes.modeId.includes('rebirth')){ // REMOVENDO SAQUE e Rebirth
-            matches.push({
-                username: item.segments[0].metadata.platformUserHandle,
-                team: [],
-                teamPlacement: item.segments[0].stats.teamPlacement.value,
-                kills: item.segments[0].stats.kills.value,
-                deaths: item.segments[0].stats.deaths.value,
-                mode: item.metadata.modeName,
-                duration: item.metadata.duration.value,
-                playerCount: item.metadata.playerCount,
-                teamCount: item.metadata.teamCount,
-                timestamp: item.metadata.timestamp
-            });
-        }
+        const stats = item.segments[0].stats;
+        matches.push({
+            username: item.segments[0].metadata.platformUserHandle,
+            team: [],
+            teamPlacement: ((stats.teamPlacement && stats.teamPlacement.value) || (stats.placement && stats.placement.value)),
+            kills: stats.kills.value,
+            deaths: stats.deaths.value,
+            mode: item.metadata.modeName,
+            duration: item.metadata.duration.value,
+            playerCount: item.metadata.playerCount,
+            teamCount: item.metadata.teamCount,
+            timestamp: item.metadata.timestamp
+        });
     }
     return matches;
 }
