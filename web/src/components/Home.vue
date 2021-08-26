@@ -27,7 +27,7 @@
                                 <span class="">{{item.username}}</span>
                             </div>
                             <div class="h6 mb-0 font-weight-bold">Partidas: {{item.gamesPlayed}}</div>
-                            <div class="h6 mb-0 font-weight-bold">Tempo de jogo: {{getFormattedTimePlayed(item.timePlayed)}}</div>
+                            <!-- <div class="h6 mb-0 font-weight-bold">Tempo de jogo: {{getFormattedTimePlayed(item.timePlayed)}}</div> -->
                             <div class="h6 mb-0 font-weight-bold">Vitórias: {{item.wins}}</div>
                             <div class="h6 mb-0 font-weight-bold">Top 5: {{item.topFive}}</div>
                             <div class="h6 mb-0 font-weight-bold">Kills: {{item.kills}}</div>
@@ -94,7 +94,7 @@
                             <label >Plataforma:</label>
                             <select class="form-control" id="platform" v-bind:value="platform" v-on:change="platform = $event.target.value">
                                 <option value="psn">{{getPlatformName("psn")}}</option>
-                                <option value="battle">{{getPlatformName("battle")}}</option>
+                                <option value="battlenet">{{getPlatformName("battlenet")}}</option>
                                 <option value="steam">{{getPlatformName("steam")}}</option>
                                 <option value="xbl">{{getPlatformName("xbl")}}</option>
                                 <option value="atvi">{{getPlatformName("atvi")}}</option>
@@ -201,7 +201,6 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col" style="min-width: 80%;">Username</th>
-                                <!-- <th scope="col" style="min-width: 25%;">Plataforma</th> -->
                                 <th scope="col" style="min-width: 10%;color: #5a5c69;">z</th>
                                 <th scope="col" style="min-width: 10%;color: #5a5c69;">z</th>
                             </tr>
@@ -209,7 +208,6 @@
                         <tbody>
                             <tr v-for="item in lastSearchedPlayers" v-bind:key="item.player" style="font-size: 13px;">
                                 <td style="min-width: 80%;">{{item.player}}</td>
-                                <!-- <td style="min-width: 25%;">{{getPlatformName(item.platform)}}</td> -->
                                 <td style="min-width: 10%;">
                                     <i type="button" class="fas fa-plus fa-sm" title="Adicionar player" @click="addPlayer(item)" data-dismiss="modal"></i>
                                 </td>
@@ -250,13 +248,16 @@
                     <b>Times por posição na partida:</b>
 
                     <div class="teamsPerPosition" v-for="(item, key) in matchDetails.teams" v-bind:key="key">
-                        <div>-------------------------------------------------------------------</div>
-                        {{key}}
-                        <div>-------------------------------------------------------------------</div>
-                        <div v-for="(player, index) in item" v-bind:key="index">
-                            <b>{{player.tag ? `[${player.tag}]` : ""}}</b> {{player.player}}
-                            <b>Kills:</b> {{player.kills}} <b>Mortes:</b> {{player.deaths}}
-                        </div>
+                        <span v-bind:class="[ matchDetails.ourTeam.teamPlacement === key ? 'text-danger' : '']">
+                            <div>-------------------------------------------------------------------</div>
+                            {{key}}
+                            <div>-------------------------------------------------------------------</div>
+                            <div v-for="(player, index) in item" v-bind:key="index">
+                                <b>{{player.tag ? `[${player.tag}]` : ""}}</b> {{player.player}}
+                                <b>Kills:</b> {{player.kills}} <b>Mortes:</b> {{player.deaths}}
+                                <b>{{ player.platform && `( ${getPlatformName(player.platform)} )` || player.platform}}</b>
+                            </div>
+                        </span>
                     </div>
                 </div>
 
@@ -516,7 +517,7 @@ export default {
             psn: { name: "PSN", icon: "fab fa-playstation" },
             xbl: { name: "XBox", icon: "fab fa-xbox" },
             steam: { name: "Steam", icon: "fa fa-desktop" },
-            battle: { name: "Battle.net", icon: "fa fa-desktop" },
+            battlenet: { name: "Battle.net", icon: "fa fa-desktop" },
             atvi: { name: "Activision", icon: "fa fa-desktop" }
         };
         this.players = this.getPlayersFromStorage();

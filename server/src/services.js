@@ -65,11 +65,16 @@ async function getMatchPlayers(matchId, cbSuccess, cbError){
                 matchPlayes[placement] = [];
             }
 
+            const profileUrl = item.metadata.profileUrl;
+            const splittedProfile = profileUrl && profileUrl.split("/");
+            const playerId = (splittedProfile && splittedProfile[4] && splittedProfile[4].replace("%23","#"));
+
             matchPlayes[placement].push({
                 tag: item.metadata.clanTag,
-                player: item.metadata.platformUserHandle,
+                player: playerId || item.metadata.platformUserHandle,
                 kills: item.stats.kills.value,
-                deaths: item.stats.deaths.value
+                deaths: item.stats.deaths.value,
+                platform: splittedProfile && splittedProfile[3]
             });
 
         }
@@ -115,33 +120,42 @@ async function getStatsRequest(reqData, result){
 
     const url = `/warzone/standard/profile/${reqData.platform}/${querystring.escape(reqData.player)}`;
 
-    const response = await http.get(url, { headers: header });
+    const userNotFound = {
+        username: reqData.player,
+        error: `Usuário '${reqData.player}' não encontrado para a plataforma '${reqData.platform}'.`
+    };
 
-    if(response.status === 200){
+    try {
 
-        const data = response.data.data;
+        const response = await http.get(url, { headers: header });
 
-        const segments = data.segments[1];
+        if(response.status === 200){
 
-        result.push({
-            username: data.platformInfo.platformUserIdentifier,
-            platform: data.platformInfo.platformSlug,
-            wins: segments.stats.wins.value,
-            kills: segments.stats.kills.value,
-            deaths: segments.stats.deaths.value,
-            balance: (segments.stats.kills.value - segments.stats.deaths.value),
-            gamesPlayed: segments.stats.gamesPlayed.value,
-            kdRatio: segments.stats.kdRatio.value,
-            timePlayed: segments.stats.timePlayed.value,
-            topFive: segments.stats.top5.value,
-            topTen: segments.stats.top10.value
-        });
+            const data = response.data.data;
+            const segments = data.segments[1];
 
-    } else {
-        result.push({
-            username: reqData.player,
-            error: `Usuário '${reqData.player}' não encontrado para a plataforma '${reqData.platform}'.`
-        });
+            result.push({
+                username: data.platformInfo.platformUserIdentifier,
+                platform: data.platformInfo.platformSlug,
+                wins: segments.stats.wins.value,
+                kills: segments.stats.kills.value,
+                deaths: segments.stats.deaths.value,
+                balance: (segments.stats.kills.value - segments.stats.deaths.value),
+                gamesPlayed: segments.stats.gamesPlayed.value,
+                kdRatio: segments.stats.kdRatio.value,
+                timePlayed: segments.stats.timePlayed.value,
+                topFive: segments.stats.top5.value,
+                topTen: segments.stats.top10.value
+            });
+
+        } else {
+            result.push(userNotFound);
+        }
+
+    } catch(err){
+        logger.error(err);
+        logger.error(`url: ${codBaseURL}/${url}`);
+        result.push(userNotFound);
     }
 
 }
