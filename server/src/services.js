@@ -116,9 +116,35 @@ async function getLastMatches(platform, player, cbSuccess, cbError){
 
 }
 
+async function getBestWeapon(reqData){
+
+    const url = `warzone/standard/profile/${reqData.platform}/${querystring.escape(reqData.player)}/segments/weapon?`;
+
+    const bestWeapons = [];
+
+    try {
+        const response = await http.get(url, { headers: header });
+        if(response.status === 200){
+            const data = response.data.data.sort((a, b) => a.stats.kills.value - b.stats.kills.value).filter( a => a.metadata.category !== 'Field Upgrades');
+            bestWeapons.push(data[data.length - 1].metadata.name);
+            bestWeapons.push(data[data.length - 2].metadata.name);
+            bestWeapons.push(data[data.length - 3].metadata.name);
+            bestWeapons.push(data[data.length - 4].metadata.name);
+            bestWeapons.push(data[data.length - 5].metadata.name);
+        }
+
+    } catch(err){
+        logger.error(err);
+        logger.error(`url: ${codBaseURL}/${url}`);
+    }
+
+    return bestWeapons.join(", ");
+
+}
+
 async function getStatsRequest(reqData, result){
 
-    const url = `/warzone/standard/profile/${reqData.platform}/${querystring.escape(reqData.player)}`;
+    const url = `warzone/standard/profile/${reqData.platform}/${querystring.escape(reqData.player)}`;
 
     const userNotFound = {
         username: reqData.player,
@@ -126,6 +152,8 @@ async function getStatsRequest(reqData, result){
     };
 
     try {
+
+        const bestWeapons = await getBestWeapon(reqData);
 
         const response = await http.get(url, { headers: header });
 
@@ -142,10 +170,12 @@ async function getStatsRequest(reqData, result){
                 deaths: segments.stats.deaths.value,
                 balance: (segments.stats.kills.value - segments.stats.deaths.value),
                 gamesPlayed: segments.stats.gamesPlayed.value,
-                kdRatio: segments.stats.kdRatio.value,
+                kdRatio: segments.stats.kdRatio.displayValue,
                 timePlayed: segments.stats.timePlayed.value,
                 topFive: segments.stats.top5.value,
-                topTen: segments.stats.top10.value
+                topTen: segments.stats.top10.value,
+                weeklyKd: segments.stats.weeklyKdRatio.displayValue,
+                bestWeapons: bestWeapons
             });
 
         } else {

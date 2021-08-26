@@ -32,10 +32,13 @@
                             <div class="h6 mb-0 font-weight-bold">Top 5: {{item.topFive}}</div>
                             <div class="h6 mb-0 font-weight-bold">Kills: {{item.kills}}</div>
                             <div class="h6 mb-0 font-weight-bold">Mortes: {{item.deaths}}</div>
-                            <div class="h6 mb-0 font-weight-bold">K/D: {{Math.round(item.kdRatio * 100) / 100}}</div>
+                            <div class="h6 mb-0 font-weight-bold">KD: {{item.kdRatio}}</div>
+                            <div class="h6 mb-0 font-weight-bold">KD semana: {{item.weeklyKd}}</div>
                             <div class="h6 mb-0 font-weight-bold">
                                 Balanço: <span class="badge badge-pill" v-bind:class="{ 'badge-danger':(item.balance < 0), 'badge-success':(item.balance >= 0)}">{{item.balance}}</span>
                             </div>
+                            <div class="h6 mb-0 font-weight-bold">Melhores armas: {{item.bestWeapons}}</div>
+
                         </div>
 
                         <a href="#" class="btn-matches text-dark" @click="showMatches(item)" data-toggle="tooltip" data-placement="left" title="Ultimas partidas" v-if="!item.error">
@@ -360,6 +363,11 @@ export default {
                 this.showMessage("Digite o usuário da plataforma selecionada");
                 return;
             }
+
+             if(this.players.length >= this.MAX_ALLOWED_PLAYES){
+                  this.showMessage("Maximo de jogadores permitido: " + this.MAX_ALLOWED_PLAYES);
+                return;
+             }
 
             if(this.players.filter( p => p.player === this.player).length){
                 this.showMessage(`O usuário ${this.player} ja está na lista.`);
