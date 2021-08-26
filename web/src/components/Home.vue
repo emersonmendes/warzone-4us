@@ -229,7 +229,7 @@
 
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Detalhes da partida
+                        Detalhes da partida {{getDateTime(matchDetails.timestamp)}}
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-toggle="tooltip" data-placement="left" title="Fechar">
                         <i class="fas fa-times fa-sm"/>
@@ -497,6 +497,7 @@ export default {
             this.disableMatchDetailsButton = true;
 
             this.matchDetails = {
+                timestamp: match.timestamp,
                 ourTeam: {
                     players: match.team,
                     teamPlacement: match.teamPlacement
