@@ -34,7 +34,7 @@ async function parseMatchesData(data){
             matchId: item.attributes.id,
             username: username,
             team: team,
-            teamPlacement: ((stats.teamPlacement && stats.teamPlacement.value) || (stats.placement && stats.placement.value)),
+            teamPlacement: ((stats.teamPlacement && stats.teamPlacement.displayValue) || (stats.placement && stats.placement.displayValue)),
             kills: stats.kills.value,
             deaths: stats.deaths.value,
             mode: item.metadata.modeName,

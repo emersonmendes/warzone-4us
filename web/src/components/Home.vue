@@ -240,8 +240,11 @@
 
                 <div class="modal-body" v-if="matchDetails.ourTeam">
                     <b>Time:</b>
+                    <div>-----------------------------------------------------------</div>
+                    {{matchDetails.ourTeam.teamPlacement}}
+                    <div>-----------------------------------------------------------</div>
                     <div  v-for="item in matchDetails.ourTeam.players" v-bind:key="item.username">
-                        {{item.clantag && item.clantag.replace("^3","[").replace("^7","]")}}{{item.platformUserHandle}} <b>Kills:</b> {{item.stats.kills}} <b>Mortes:</b> {{item.stats.deaths}}
+                        {{item.clantag && item.clantag.replace("^3","[").replace("^7","]")}} {{item.platformUserHandle}} <b>Kills:</b> {{item.stats.kills}} <b>Mortes:</b> {{item.stats.deaths}}
                     </div>
                     <br />
                     <b>Times por posição na partida:</b>
@@ -494,13 +497,8 @@ export default {
 
             this.matchDetails = {
                 ourTeam: {
-                    players: match.team
-                },
-                mostKills: {
-                    username: ""
-                },
-                mostDeaths:{
-                    username: ""
+                    players: match.team,
+                    teamPlacement: match.teamPlacement
                 },
                 teams: response.data || [],
             };
