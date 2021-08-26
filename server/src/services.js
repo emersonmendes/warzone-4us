@@ -53,9 +53,32 @@ async function getMatchPlayers(matchId, cbSuccess, cbError){
 
     const response = await http.get(url, { headers: header });
 
+    const matchPlayes = {};
+
+    for(const item of response.data.data.segments){
+
+        if(item.metadata){
+
+            const placement = item.metadata.placement.displayValue;
+
+            if(!matchPlayes[placement]){
+                matchPlayes[placement] = [];
+            }
+
+            matchPlayes[placement].push({
+                tag: item.metadata.clanTag,
+                player: item.metadata.platformUserHandle,
+                kills: item.stats.kills.value,
+                deaths: item.stats.deaths.value
+            });
+
+        }
+
+    }
+
     try {
         if(200 === response.status){
-            cbSuccess(response.data.data.segments);
+            cbSuccess(matchPlayes);
         }else {
             cbSuccess([]);
         }

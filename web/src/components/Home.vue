@@ -246,12 +246,14 @@
                     <br />
                     <b>Times por posição na partida:</b>
 
-                    <div class="teamsPerPosition" v-for="(item, index) in matchDetails.teams" v-bind:key="index">
-
-                        {{item.metadata.placement.displayValue}} -
-                        [{{item.metadata.clanTag}}]{{item.metadata.platformUserHandle}}
-                        <b>Kills:</b> {{item.stats.kills.value}} <b>Mortes:</b> {{item.stats.deaths.value}}
-
+                    <div class="teamsPerPosition" v-for="(item, key) in matchDetails.teams" v-bind:key="key">
+                        <div>-------------------------------------------------------------------</div>
+                        {{key}}
+                        <div>-------------------------------------------------------------------</div>
+                        <div v-for="(player, index) in item" v-bind:key="index">
+                            <b>{{player.tag ? `[${player.tag}]` : ""}}</b> {{player.player}}
+                            <b>Kills:</b> {{player.kills}} <b>Mortes:</b> {{player.deaths}}
+                        </div>
                     </div>
                 </div>
 
@@ -352,11 +354,6 @@ export default {
 
             if(!this.player){
                 this.showMessage("Digite o usuário da plataforma selecionada");
-                return;
-            }
-
-            if(this.players.length >= this.MAX_ALLOWED_PLAYES){
-                this.showMessage(`Máximo de players permitidos: ${this.MAX_ALLOWED_PLAYES}`);
                 return;
             }
 
@@ -482,7 +479,7 @@ export default {
             return [];
         },
 
-        async getMatchePlayers(matchId){
+        async getMatchPlayers(matchId){
             const response = await this.$http.get('/matchPlayers', {
                 params: { matchId }
             });
@@ -491,7 +488,7 @@ export default {
 
         async showMatchDetails(match){
 
-            const response = await this.getMatchePlayers(match.matchId);
+            const response = await this.getMatchPlayers(match.matchId);
 
             this.disableMatchDetailsButton = true;
 
@@ -631,6 +628,10 @@ export default {
         padding-right: 0px;
     }
 
+    thead {
+        padding-right: 6px;
+    }
+
     thead, tbody, tr, td, th {
         display: block;
     }
@@ -765,6 +766,15 @@ export default {
             margin: 14px 20px;
         }
 
+    }
+
+    #modalMatchDetails .modal-dialog{
+        overflow-y: initial !important
+    }
+
+    #modalMatchDetails .modal-body {
+        max-height: calc(100vh - 200px);
+        overflow-y: scroll;
     }
 
 </style>
