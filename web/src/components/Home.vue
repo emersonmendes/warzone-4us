@@ -210,11 +210,11 @@
                         <tbody>
                             <tr v-for="item in lastSearchedPlayers" v-bind:key="item.player" style="font-size: 13px;">
                                 <td style="min-width: 80%;">{{item.player}}</td>
-                                <td style="min-width: 10%;">
-                                    <i type="button" class="fas fa-plus fa-sm" title="Adicionar player" @click="addPlayer(item)" data-dismiss="modal"></i>
+                                <td style="min-width: 10%; cursor: pointer;">
+                                    <i class="fas fa-plus fa-sm" title="Adicionar player" @click="addPlayer(item)" data-dismiss="modal"></i>
                                 </td>
-                                <td style="min-width: 10%;">
-                                    <i type="button" class="fas fa-trash fa-sm" title="Remover player" @click="removePlayerFromLastPlayersSearched(item)" data-dismiss="modal"></i>
+                                <td style="min-width: 10%; cursor: pointer;">
+                                    <i class="fas fa-trash fa-sm" title="Remover player" @click="removePlayerFromLastPlayersSearched(item)" data-dismiss="modal"></i>
                                 </td>
                             </tr>
                         </tbody>
