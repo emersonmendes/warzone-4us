@@ -384,13 +384,11 @@ export default {
         },
 
         removePlayer(item){
-            this.clearPulling();
             this.data = this.data.filter(d => (d.username !== item.username) ||  (d.error && !d.username));
             if(item.username){
                 this.players = this.players.filter( p => p.player !== item.username);
                 this.setPlayersToStorage(this.players);
             }
-            this.setPulling();
             $('[data-toggle="tooltip"]').tooltip('dispose');
         },
 
@@ -398,6 +396,7 @@ export default {
             this.resetTime();
             this.timer = setInterval(async () => {
                 if(this.updateSecond === 1){
+                    console.log(`this.players: ${this.players}`);
                     await this.updatePlayersData(this.players);
                     this.resetTime();
                 } else {
