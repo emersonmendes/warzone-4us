@@ -27,7 +27,6 @@
                                 <span class="">{{item.username}}</span>
                             </div>
                             <div class="h6 mb-0 font-weight-bold">Partidas: {{item.gamesPlayed}}</div>
-                            <!-- <div class="h6 mb-0 font-weight-bold">Tempo de jogo: {{getFormattedTimePlayed(item.timePlayed)}}</div> -->
                             <div class="h6 mb-0 font-weight-bold">Vitórias: {{item.wins}}</div>
                             <div class="h6 mb-0 font-weight-bold">Top 5: {{item.topFive}}</div>
                             <div class="h6 mb-0 font-weight-bold">Kills: {{item.kills}}</div>
@@ -332,19 +331,15 @@ export default {
 
         async getMatches(platform, username){
             this.disableDetailsButton = true;
-            const response = await this.$http.get('/matches', {
-                params: { platform, username }
-            });
+            const response = await this.$http.get('/matches', { params: { platform, username } });
             this.disableDetailsButton = true;
             return response.data;
         },
 
         callUpdatePlayersData(){
             this.disableUpdateButton = true;
-            setTimeout(() => {
-                this.disableUpdateButton = false;
-            }, 5000);
-            this.updatePlayersData();
+            setTimeout(() => this.disableUpdateButton = false, 5000);
+            this.updatePlayersData(this.players);
         },
 
         async updatePlayersData(){
@@ -364,26 +359,24 @@ export default {
                 return;
             }
 
-             if(this.players.length >= this.MAX_ALLOWED_PLAYES){
-                  this.showMessage("Maximo de jogadores permitido: " + this.MAX_ALLOWED_PLAYES);
+            if(this.players.length >= this.MAX_ALLOWED_PLAYES){
+                this.showMessage(`Maximo de jogadores permitido: ${this.MAX_ALLOWED_PLAYES}`);
                 return;
-             }
+            }
 
             if(this.players.filter( p => p.player === this.player).length){
                 this.showMessage(`O usuário ${this.player} ja está na lista.`);
                 return;
             }
 
+            const playerObj = { player: this.player, platform: this.platform };
+
             this.clearPulling();
 
-            const playerObj = {
-                player: this.player,
-                platform: this.platform
-            };
-
             this.players.push(playerObj);
+
             this.setPlayersToStorage(this.players);
-            this.updatePlayersData();
+            this.updatePlayersData(this.players);
             this.setPulling();
 
             this.addPlayerToLastPlayersSearched(playerObj);
@@ -405,10 +398,10 @@ export default {
             this.resetTime();
             this.timer = setInterval(async () => {
                 if(this.updateSecond === 1){
-                    this.updatePlayersData();
+                    await this.updatePlayersData(this.players);
                     this.resetTime();
                 } else {
-                    this.updateSecond -= 1;
+                    this.updateSecond--;
                 }
             }, 1000);
         },
@@ -492,10 +485,7 @@ export default {
         },
 
         async getMatchPlayers(matchId){
-            const response = await this.$http.get('/matchPlayers', {
-                params: { matchId }
-            });
-            return response;
+            return await this.$http.get('/matchPlayers', { params: { matchId } });
         },
 
         async showMatchDetails(match){
